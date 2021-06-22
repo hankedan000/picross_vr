@@ -3,11 +3,11 @@ extends Spatial
 var cubes = []
 
 func _ready():
-	$GreenCube.set_unsolved()
-	$GreenCube.set_highlight_color(Color.green)
+	$GreenCube.state = BaseCube.State.Highlighted
+	$GreenCube.highlight_color = Color.green
 	cubes.append($GreenCube)
-	$RedCube.set_unsolved()
-	$RedCube.set_highlight_color(Color.red)
+	$RedCube.state = BaseCube.State.Highlighted
+	$RedCube.highlight_color = Color.red
 	cubes.append($RedCube)
 
 func _process(delta):

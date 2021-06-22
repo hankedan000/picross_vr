@@ -10,6 +10,11 @@ config_version=4
 
 _global_script_classes=[ {
 "base": "Spatial",
+"class": "BaseCube",
+"language": "GDScript",
+"path": "res://scenes/BaseCube/BaseCube.gd"
+}, {
+"base": "Spatial",
 "class": "Feature_RigidBodyGrab",
 "language": "GDScript",
 "path": "res://OQ_Toolkit/OQ_ARVRController/scripts/Feature_RigidBodyGrab.gd"
@@ -55,6 +60,7 @@ _global_script_classes=[ {
 "path": "res://scenes/Picross/Picross.gd"
 } ]
 _global_script_class_icons={
+"BaseCube": "",
 "Feature_RigidBodyGrab": "",
 "Feature_ToolGrab": "",
 "OQClass_GrabbableRigidBody": "",
