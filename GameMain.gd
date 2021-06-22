@@ -4,7 +4,7 @@
 extends Node
 
 var room_list = [
-	"res://demo_scenes/UIDemoScene.tscn"
+	"res://scenes/UIDemoScene.tscn"
 	]
 
 var current_room = 0;
@@ -21,9 +21,9 @@ func _ready():
 	if (vr.arvr_webxr_interface): yield(vr, "signal_webxr_started");
 	
 	# Always advertise Godot a bit in the beginning
-	if (vr.inVR): vr.switch_scene("res://demo_scenes/GodotSplash.tscn", 0.0, 0.0);
+	if (vr.inVR): vr.switch_scene("res://scenes/GodotSplash/GodotSplash.tscn", 0.0, 0.0);
 	
-	vr.switch_scene(room_list[current_room], 0.1, 5.0);
+	vr.switch_scene(room_list[current_room], 0.1, 2.0);
 
 	vr.log_info("  Tracking space is: %d" % vr.get_tracking_space());
 	vr.log_info(str("  get_boundary_oriented_bounding_box is: ", vr.get_boundary_oriented_bounding_box()));
