@@ -16,8 +16,10 @@ var _data = {
 	"name" : "",
 	"shape" : [],
 	"hint_groups" : [],
-	"fill" : []
+	"fills" : []
 }
+
+var _cubes_mesh_by_xyz = {}
 
 func _ready():
 	# store a copy of the base cube for reinstancing later
@@ -31,6 +33,8 @@ func from_file(filepath : String):
 	reset()
 	for cube in data['shape']:
 		add_cube(cube[0],cube[1],cube[2])
+		
+	_data.fills = data.fills
 
 func reset():
 	_clear_all_cubes()
@@ -38,7 +42,7 @@ func reset():
 		"name" : "",
 		"shape" : [],
 		"hint_groups" : [],
-		"fill" : []
+		"fills" : []
 	}
 		
 	_width = 0
@@ -64,21 +68,84 @@ func load_unsolved_shape():
 	for x in range(_width):
 		for y in range(_height):
 			for z in range(_depth):
-				_add_cube_mesh(x,y,z)
-	
+				_add_cube(x,y,z)
+				_set_cube_fill(x,y,z,Color.red)
+
+const FACE_TYPE_LUT = {
+	"+x" : "right",
+	"-x" : "left",
+	"+y" : "top",
+	"-y" : "bottom",
+	"+z" : "front",
+	"-z" : "back"
+}
+
 func load_solved_shape():
 	_clear_all_cubes()
 	
 	# load the final shape
 	for cube in _data.shape:
-		_add_cube_mesh(cube[0],cube[1],cube[2])
+		_add_cube(cube[0],cube[1],cube[2])
+		
+	# load fill textures
+	var fills = _data.get('fills',[])
+	for fill in fills:
+		var cube = fill.cube
+		
+		# start by fill whole cube with color if it's defined
+		if fill.has('color'):
+			var fill_color = Color(fill['color'])
+			_set_cube_fill(cube[0],cube[1],cube[2],fill_color)
+		
+		# iterate over all faces and fill as defined
+		var faces = fill.get('faces',[])
+		for face_fill in faces:
+			var face = FACE_TYPE_LUT[face_fill['face']]
+			var fill_color = Color(face_fill['color'])
+			_set_cube_face_fill(cube[0],cube[1],cube[2],face,fill_color)
 	
-func _add_cube_mesh(x,y,z):
+func _add_cube(x,y,z):
+	var key = [x,y,z]
+	if _cubes_mesh_by_xyz.has(key):
+		vr.log_warning("duplicate add of cube meash at x,y,z = %s" % [key])
+		return
+	
 	var new_cube : Spatial = base_cube.duplicate()
+	for mesh_inst in new_cube.get_node("meshes").get_children():
+		mesh_inst.set_surface_material(0,SpatialMaterial.new())
 	var origin = Vector3(int(x),int(y),int(z)) * CUBE_WIDTH
 	new_cube.transform = Transform(Basis(), origin)
 	$cubes.add_child(new_cube)
+	_cubes_mesh_by_xyz[key] = new_cube
+	
+func _set_cube_fill(x,y,z,fill_color):
+	var key = [x,y,z]
+	if _cubes_mesh_by_xyz.has(key):
+		var cube = _cubes_mesh_by_xyz[key]
+		for mesh_inst in cube.get_node("meshes").get_children():
+			var mat = mesh_inst.get_surface_material(0)
+			if mat is SpatialMaterial:
+				mat.albedo_color = fill_color
+			else:
+				vr.log_warning("can only set fill on SpatialMaterials")
+	else:
+		vr.log_warning("unknown cube mesh at %s. can't set fill" % [key])
+
+# face can be 'front','back','top','bottom','left', or 'right'
+func _set_cube_face_fill(x,y,z,face,fill_color):
+	var key = [x,y,z]
+	if _cubes_mesh_by_xyz.has(key):
+		var cube = _cubes_mesh_by_xyz[key]
+		var mesh_inst = cube.get_node("meshes").get_node(face)
+		var mat = mesh_inst.get_surface_material(0)
+		if mat is SpatialMaterial:
+			mat.albedo_color = fill_color
+		else:
+			vr.log_warning("can only set fill on SpatialMaterials")
+	else:
+		vr.log_warning("unknown cube mesh at %s. can't set fill" % [key])
 	
 func _clear_all_cubes():
 	for cube in $cubes.get_children():
 		cube.queue_free()
+	_cubes_mesh_by_xyz = {}
