@@ -48,6 +48,11 @@ _global_script_classes=[ {
 "class": "OQ_ARVRController",
 "language": "GDScript",
 "path": "res://OQ_Toolkit/OQ_ARVRController/scripts/OQ_ARVRController.gd"
+}, {
+"base": "Spatial",
+"class": "Picross",
+"language": "GDScript",
+"path": "res://scenes/Picross/Picross.gd"
 } ]
 _global_script_class_icons={
 "Feature_RigidBodyGrab": "",
@@ -57,7 +62,8 @@ _global_script_class_icons={
 "OQClass_Tool": "",
 "OQClass_ToolGrabController": "",
 "OQClass_ToolGrabLinearController": "",
-"OQ_ARVRController": ""
+"OQ_ARVRController": "",
+"Picross": ""
 }
 
 [application]
