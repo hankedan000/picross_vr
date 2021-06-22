@@ -1,0 +1,45 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://scenes/BaseCube/BaseCube.gd" type="Script" id=1]
+[ext_resource path="res://assets/unsolved_cube_background.png" type="Texture" id=2]
+
+[sub_resource type="PlaneMesh" id=1]
+size = Vector2( 0.02, 0.02 )
+
+[sub_resource type="SpatialMaterial" id=2]
+
+[node name="BaseCube" type="Spatial"]
+script = ExtResource( 1 )
+UnsolvedImage = ExtResource( 2 )
+
+[node name="meshes" type="Spatial" parent="."]
+
+[node name="top" type="MeshInstance" parent="meshes"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.01, 0 )
+mesh = SubResource( 1 )
+material/0 = null
+
+[node name="bottom" type="MeshInstance" parent="meshes"]
+transform = Transform( 1, 0, 0, 0, -1, 8.74228e-08, 0, -8.74228e-08, -1, 0, -0.01, 0 )
+mesh = SubResource( 1 )
+material/0 = null
+
+[node name="back" type="MeshInstance" parent="meshes"]
+transform = Transform( -1, -8.74228e-08, 3.82137e-15, 0, -4.37114e-08, -1, 8.74228e-08, -1, 4.37114e-08, 0, 0, -0.01 )
+mesh = SubResource( 1 )
+material/0 = null
+
+[node name="front" type="MeshInstance" parent="meshes"]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0.01 )
+mesh = SubResource( 1 )
+material/0 = SubResource( 2 )
+
+[node name="left" type="MeshInstance" parent="meshes"]
+transform = Transform( -4.37114e-08, -1, 4.37114e-08, 0, -4.37114e-08, -1, 1, -4.37114e-08, 1.91069e-15, -0.01, 0, 0 )
+mesh = SubResource( 1 )
+material/0 = null
+
+[node name="right" type="MeshInstance" parent="meshes"]
+transform = Transform( -4.37114e-08, 1, -4.37114e-08, 0, -4.37114e-08, -1, -1, -4.37114e-08, 1.91069e-15, 0.01, 0, 0 )
+mesh = SubResource( 1 )
+material/0 = null

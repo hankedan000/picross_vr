@@ -68,8 +68,9 @@ func load_unsolved_shape():
 	for x in range(_width):
 		for y in range(_height):
 			for z in range(_depth):
-				_add_cube(x,y,z)
-				_set_cube_fill(x,y,z,Color.red)
+				var cube = _add_cube(x,y,z)
+				if cube:
+					cube.set_unsolved()
 
 const FACE_TYPE_LUT = {
 	"+x" : "right",
@@ -108,15 +109,14 @@ func _add_cube(x,y,z):
 	var key = [x,y,z]
 	if _cubes_mesh_by_xyz.has(key):
 		vr.log_warning("duplicate add of cube meash at x,y,z = %s" % [key])
-		return
+		return null
 	
 	var new_cube : Spatial = base_cube.duplicate()
-	for mesh_inst in new_cube.get_node("meshes").get_children():
-		mesh_inst.set_surface_material(0,SpatialMaterial.new())
 	var origin = Vector3(int(x),int(y),int(z)) * CUBE_WIDTH
 	new_cube.transform = Transform(Basis(), origin)
 	$cubes.add_child(new_cube)
 	_cubes_mesh_by_xyz[key] = new_cube
+	return new_cube
 	
 func _set_cube_fill(x,y,z,fill_color):
 	var key = [x,y,z]
