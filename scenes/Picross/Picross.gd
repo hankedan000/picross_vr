@@ -70,7 +70,7 @@ func load_unsolved_shape():
 			for z in range(_depth):
 				var cube = _add_cube(x,y,z)
 				if cube:
-					cube.set_unsolved()
+					cube.state = BaseCube.State.Unsolved
 
 const FACE_TYPE_LUT = {
 	"+x" : "right",
@@ -85,8 +85,10 @@ func load_solved_shape():
 	_clear_all_cubes()
 	
 	# load the final shape
-	for cube in _data.shape:
-		_add_cube(cube[0],cube[1],cube[2])
+	for cube_dat in _data.shape:
+		var cube = _add_cube(cube_dat[0],cube_dat[1],cube_dat[2])
+		if cube:
+			cube.state = BaseCube.State.Solved
 		
 	# load fill textures
 	var fills = _data.get('fills',[])

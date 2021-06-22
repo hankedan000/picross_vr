@@ -1,7 +1,8 @@
-[gd_scene load_steps=10 format=2]
+[gd_scene load_steps=11 format=2]
 
 [ext_resource path="res://scenes/BaseCube/BaseCube.gd" type="Script" id=1]
 [ext_resource path="res://assets/unsolved_cube_background.png" type="Texture" id=2]
+[ext_resource path="res://OQ_Toolkit/OQ_UI2D/OQ_UI2DLabel.tscn" type="PackedScene" id=3]
 
 [sub_resource type="PlaneMesh" id=1]
 size = Vector2( 0.02, 0.02 )
@@ -67,3 +68,53 @@ material/0 = SubResource( 6 )
 transform = Transform( -4.37114e-08, 1, -4.37114e-08, 0, -4.37114e-08, -1, -1, -4.37114e-08, 1.91069e-15, 0.01, 0, 0 )
 mesh = SubResource( 1 )
 material/0 = SubResource( 7 )
+
+[node name="labels" type="Spatial" parent="."]
+
+[node name="top" parent="labels" instance=ExtResource( 3 )]
+transform = Transform( 1, 0, 0, 0, -1.62921e-07, 1, 0, -1, -1.62921e-07, 0, 0.0101, 0 )
+text = "T"
+margin = 0
+font_size_multiplier = 0.5
+background_color = Color( 0, 0, 0, 0 )
+transparent = true
+
+[node name="bottom" parent="labels" instance=ExtResource( 3 )]
+transform = Transform( 1, 0, 0, 0, -1.62921e-07, -1, 0, 1, -1.62921e-07, 0, -0.0101, 0 )
+text = "B"
+margin = 0
+font_size_multiplier = 0.5
+background_color = Color( 0, 0, 0, 0 )
+transparent = true
+
+[node name="back" parent="labels" instance=ExtResource( 3 )]
+transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, -0.0101 )
+text = "99"
+margin = 0
+font_size_multiplier = 0.5
+background_color = Color( 0, 0, 0, 0 )
+transparent = true
+
+[node name="front" parent="labels" instance=ExtResource( 3 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.0101 )
+text = "99"
+margin = 0
+font_size_multiplier = 0.5
+background_color = Color( 0, 0, 0, 0 )
+transparent = true
+
+[node name="left" parent="labels" instance=ExtResource( 3 )]
+transform = Transform( -1.62921e-07, 0, -1, 0, 1, 0, 1, 0, -1.62921e-07, -0.0101, 0, 0 )
+text = "L"
+margin = 0
+font_size_multiplier = 0.5
+background_color = Color( 0, 0, 0, 0 )
+transparent = true
+
+[node name="right" parent="labels" instance=ExtResource( 3 )]
+transform = Transform( -1.62921e-07, 0, 1, 0, 1, 0, -1, 0, -1.62921e-07, 0.0101, 0, 0 )
+text = "R"
+margin = 0
+font_size_multiplier = 0.5
+background_color = Color( 0, 0, 0, 0 )
+transparent = true
