@@ -39,17 +39,26 @@ func clear_labels():
 	set_tb_label("")
 	set_lr_label("")
 		
-func set_fb_label(text):
+func set_fb_label(text : String):
 	$labels/front.text = text
 	$labels/back.text = text
+	var label_visible = not text.empty()
+	$labels/front.visible = label_visible
+	$labels/back.visible = label_visible
 		
 func set_tb_label(text):
 	$labels/top.text = text
 	$labels/bottom.text = text
+	var label_visible = not text.empty()
+	$labels/top.visible = label_visible
+	$labels/bottom.visible = label_visible
 		
 func set_lr_label(text):
 	$labels/left.text = text
 	$labels/right.text = text
+	var label_visible = not text.empty()
+	$labels/left.visible = label_visible
+	$labels/right.visible = label_visible
 		
 func _get_light_highlight():
 	var light_color = highlight_color
@@ -89,7 +98,6 @@ func _set_state(value):
 					mat.albedo_texture = UnsolvedImage
 		State.Solved:
 			$labels.visible = false
-			var albedo_color = _get_light_highlight()
 			for mesh_inst in $meshes.get_children():
 				var mat : Material = mesh_inst.get_surface_material(0)
 				if mat is SpatialMaterial:

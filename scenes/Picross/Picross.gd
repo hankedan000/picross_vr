@@ -1,8 +1,13 @@
 extends Spatial
 class_name Picross
 
+
 # a copy of the BaseCube node that all copies will be instanced from
 var base_cube : Spatial = null
+
+# rigid body will be reparented to parent node, we'll keep a reference to it here
+var body : RigidBody = null
+var body_disjoined = false
 
 # FIXME make this dynamic it doesn't change with the origina size of the BaseCube.mesh
 const CUBE_WIDTH = 0.02
@@ -48,6 +53,7 @@ func reset():
 	_width = 0
 	_height = 0
 	_depth = 0
+	_update_grab_shape()
 		
 func add_cube(x,y,z):
 	if x < 0 || y < 0 || z < 0:
@@ -69,8 +75,10 @@ func load_unsolved_shape():
 		for y in range(_height):
 			for z in range(_depth):
 				var cube = _add_cube(x,y,z)
-				if cube:
+				if cube is BaseCube:
 					cube.state = BaseCube.State.Unsolved
+					cube.clear_labels()
+					cube.set_fb_label("9")
 
 const FACE_TYPE_LUT = {
 	"+x" : "right",
@@ -118,7 +126,30 @@ func _add_cube(x,y,z):
 	new_cube.transform = Transform(Basis(), origin)
 	$cubes.add_child(new_cube)
 	_cubes_mesh_by_xyz[key] = new_cube
+	_update_grab_shape()
 	return new_cube
+
+# resize the collision shape based on the current width, height, and depth
+func _update_grab_shape():
+	if body == null:
+		return
+	
+	# get the body's collision shape
+	var cs : CollisionShape = null
+	for child in body.get_children():
+		if child is CollisionShape:
+			cs = child
+			break
+	
+	cs.shape.extents.x = _width * CUBE_WIDTH / 2.0
+	cs.shape.extents.y = _height * CUBE_WIDTH / 2.0
+	cs.shape.extents.z = _depth * CUBE_WIDTH / 2.0
+	
+	# place colision shape in middle of picross
+	var half_cube_width = CUBE_WIDTH / 2.0
+	cs.transform.origin.x = _width * CUBE_WIDTH / 2.0 - half_cube_width
+	cs.transform.origin.y = _height * CUBE_WIDTH / 2.0 - half_cube_width
+	# z is already aligned
 	
 func _set_cube_fill(x,y,z,fill_color):
 	var key = [x,y,z]
@@ -151,3 +182,22 @@ func _clear_all_cubes():
 	for cube in $cubes.get_children():
 		cube.queue_free()
 	_cubes_mesh_by_xyz = {}
+	
+func _process(_delta):
+	# rigid body is movable by player, make everything else follow rigid body
+	if body != null and body_disjoined:
+		global_transform = body.global_transform
+
+func _on_Picross_tree_exiting():
+	# remove the body that we reparented
+	if body != null and body_disjoined:
+		body.queue_free()
+
+func _on_Picross_tree_entered():
+	# reparent the rigid body to the parent node so player can move object
+	var parent = get_parent()
+	body = $body
+	if parent != null:
+		self.remove_child(body)
+		parent.call_deferred("add_child",body)
+		body_disjoined = true
