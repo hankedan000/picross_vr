@@ -81,8 +81,10 @@ func load_unsolved_shape():
 			for z in range(_depth):
 				var cube = _add_cube(x,y,z)
 				if cube is BaseCube:
-					cube.state = BaseCube.State.Highlighted
-#					cube.clear_labels()
+					cube.state= BaseCube.State.Unsolved
+					cube.clear_labels()
+					cube.set_fb_label(5)
+					cube.set_lr_label(2)
 
 const FACE_TYPE_LUT = {
 	"+x" : "right",

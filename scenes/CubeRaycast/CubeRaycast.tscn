@@ -1,0 +1,25 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://scenes/CubeRaycast/CubeRaycast.gd" type="Script" id=1]
+
+[sub_resource type="CylinderMesh" id=1]
+top_radius = 0.002
+bottom_radius = 0.002
+height = 0.05
+
+[node name="CubeRaycast" type="Spatial"]
+script = ExtResource( 1 )
+
+[node name="RaycastPosition" type="Spatial" parent="."]
+
+[node name="RayCast" type="RayCast" parent="RaycastPosition"]
+enabled = true
+cast_to = Vector3( 0, 3, 0 )
+collision_mask = 262144
+collide_with_areas = true
+collide_with_bodies = false
+
+[node name="MeshInstance" type="MeshInstance" parent="RaycastPosition"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0254142, 0 )
+mesh = SubResource( 1 )
+material/0 = null
