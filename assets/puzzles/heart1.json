@@ -75,12 +75,12 @@
 	],
 	"hint_groups" : [
 		{
-			"axis" : "x",
+			"axis" : "z",
 			"hints" : [
 				{
-					"location" : {"y":0,"z":0},
+					"location" : {"y":2,"x":0},
 					"value" : 2,
-					"type" : "total | split"
+					"type" : "circle"
 				}
 			]
 		}

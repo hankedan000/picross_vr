@@ -23,7 +23,7 @@ var _data = {
 	"fills" : []
 }
 
-var _cubes_mesh_by_xyz = {}
+var _cubes_by_xyz = {}
 
 func _ready():
 	# reparent the rigid body to the parent node so player can move object
@@ -45,6 +45,7 @@ func from_file(filepath : String):
 		add_cube(cube[0],cube[1],cube[2])
 		
 	_data.fills = data.fills
+	_data.hint_groups = data.hint_groups
 
 func reset():
 	_clear_all_cubes()
@@ -83,8 +84,35 @@ func load_unsolved_shape():
 				if cube is BaseCube:
 					cube.state= BaseCube.State.Unsolved
 					cube.clear_labels()
-					cube.set_fb_label(5)
-					cube.set_lr_label(2)
+					
+	for hint_group in _data['hint_groups']:
+		for hint in hint_group['hints']:
+			var value = hint['value']
+			var type = hint['type']
+			if hint_group['axis'] == 'x':
+				var y = hint['location']['y']
+				var z = hint['location']['z']
+				for x in range(_width):
+					var key = _make_key(x,y,z)
+					var cube : BaseCube = _cubes_by_xyz.get(key,null)
+					if cube != null:
+						cube.set_lr_label(value,type)
+			elif hint_group['axis'] == 'y':
+				var x = hint['location']['x']
+				var z = hint['location']['z']
+				for y in range(_height):
+					var key = _make_key(x,y,z)
+					var cube : BaseCube = _cubes_by_xyz.get(key,null)
+					if cube != null:
+						cube.set_tb_label(value,type)
+			elif hint_group['axis'] == 'z':
+				var x = hint['location']['x']
+				var y = hint['location']['y']
+				for z in range(_depth):
+					var key = _make_key(x,y,z)
+					var cube : BaseCube = _cubes_by_xyz.get(key,null)
+					if cube != null:
+						cube.set_fb_label(value,type)
 
 const FACE_TYPE_LUT = {
 	"+x" : "right",
@@ -120,10 +148,13 @@ func load_solved_shape():
 			var face = FACE_TYPE_LUT[face_fill['face']]
 			var fill_color = Color(face_fill['color'])
 			_set_cube_face_fill(cube[0],cube[1],cube[2],face,fill_color)
-	
+
+static func _make_key(x,y,z):
+	return [int(x),int(y),int(z)]
+
 func _add_cube(x,y,z):
-	var key = [x,y,z]
-	if _cubes_mesh_by_xyz.has(key):
+	var key = _make_key(x,y,z)
+	if _cubes_by_xyz.has(key):
 		vr.log_warning("duplicate add of cube meash at x,y,z = %s" % [key])
 		return null
 	
@@ -131,7 +162,7 @@ func _add_cube(x,y,z):
 	var origin = Vector3(int(x),int(y),int(z)) * CUBE_WIDTH
 	new_cube.transform = Transform(Basis(), origin)
 	$cubes.add_child(new_cube)
-	_cubes_mesh_by_xyz[key] = new_cube
+	_cubes_by_xyz[key] = new_cube
 	_update_grab_shape()
 	return new_cube
 
@@ -159,8 +190,8 @@ func _update_grab_shape():
 	
 func _set_cube_fill(x,y,z,fill_color):
 	var key = [x,y,z]
-	if _cubes_mesh_by_xyz.has(key):
-		var cube = _cubes_mesh_by_xyz[key]
+	if _cubes_by_xyz.has(key):
+		var cube = _cubes_by_xyz[key]
 		for mesh_inst in cube.get_node("meshes").get_children():
 			var mat = mesh_inst.get_surface_material(0)
 			if mat is SpatialMaterial:
@@ -173,8 +204,8 @@ func _set_cube_fill(x,y,z,fill_color):
 # face can be 'front','back','top','bottom','left', or 'right'
 func _set_cube_face_fill(x,y,z,face,fill_color):
 	var key = [x,y,z]
-	if _cubes_mesh_by_xyz.has(key):
-		var cube = _cubes_mesh_by_xyz[key]
+	if _cubes_by_xyz.has(key):
+		var cube = _cubes_by_xyz[key]
 		var mesh_inst = cube.get_node("meshes").get_node(face)
 		var mat = mesh_inst.get_surface_material(0)
 		if mat is SpatialMaterial:
@@ -187,7 +218,7 @@ func _set_cube_face_fill(x,y,z,face,fill_color):
 func _clear_all_cubes():
 	for cube in $cubes.get_children():
 		cube.queue_free()
-	_cubes_mesh_by_xyz = {}
+	_cubes_by_xyz = {}
 	
 func _process(_delta):
 	if no_gravity:

@@ -35,44 +35,56 @@ func _ready():
 	__ready = true
 	
 func clear_labels():
-	set_fb_label(-1)
-	set_tb_label(-1)
-	set_lr_label(-1)
+	set_fb_label(-1,"normal")
+	set_tb_label(-1,"normal")
+	set_lr_label(-1,"normal")
 
 # each sprint is 64x64 pixels
 const SPRITE_SIZE = 64
 const NORMAL_NUMBERS_Y = SPRITE_SIZE * 2 # 3rd row
 const CIRCLED_NUMBERS_Y = SPRITE_SIZE * 3 # 4th row
 
-func set_fb_label(number : int):
+func _label_type_to_sprite_sheet_y(type : String):
+	if type == "normal":
+		return NORMAL_NUMBERS_Y
+	elif type == "circle":
+		return CIRCLED_NUMBERS_Y
+	else:
+		vr.log_warning("unsupported label type %s" % type)
+		return NORMAL_NUMBERS_Y
+
+func set_fb_label(number : int, type : String):
 	var label_visible = false
 	if number >= 0:
 		label_visible = true
-		$labels/front.region_rect.position.y = NORMAL_NUMBERS_Y
+		var label_y = _label_type_to_sprite_sheet_y(type)
+		$labels/front.region_rect.position.y = label_y
 		$labels/front.region_rect.position.x = number * SPRITE_SIZE
-		$labels/back.region_rect.position.y = NORMAL_NUMBERS_Y
+		$labels/back.region_rect.position.y = label_y
 		$labels/back.region_rect.position.x = number * SPRITE_SIZE
 	$labels/front.visible = label_visible
 	$labels/back.visible = label_visible
 		
-func set_tb_label(number : int):
+func set_tb_label(number : int, type : String):
 	var label_visible = false
 	if number >= 0:
 		label_visible = true
-		$labels/top.region_rect.position.y = NORMAL_NUMBERS_Y
+		var label_y = _label_type_to_sprite_sheet_y(type)
+		$labels/top.region_rect.position.y = label_y
 		$labels/top.region_rect.position.x = number * SPRITE_SIZE
-		$labels/bottom.region_rect.position.y = NORMAL_NUMBERS_Y
+		$labels/bottom.region_rect.position.y = label_y
 		$labels/bottom.region_rect.position.x = number * SPRITE_SIZE
 	$labels/top.visible = label_visible
 	$labels/bottom.visible = label_visible
 		
-func set_lr_label(number : int):
+func set_lr_label(number : int, type : String):
 	var label_visible = false
 	if number >= 0:
 		label_visible = true
-		$labels/left.region_rect.position.y = NORMAL_NUMBERS_Y
+		var label_y = _label_type_to_sprite_sheet_y(type)
+		$labels/left.region_rect.position.y = label_y
 		$labels/left.region_rect.position.x = number * SPRITE_SIZE
-		$labels/right.region_rect.position.y = NORMAL_NUMBERS_Y
+		$labels/right.region_rect.position.y = label_y
 		$labels/right.region_rect.position.x = number * SPRITE_SIZE
 	$labels/left.visible = label_visible
 	$labels/right.visible = label_visible
