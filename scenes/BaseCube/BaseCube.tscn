@@ -2,7 +2,7 @@
 
 [ext_resource path="res://scenes/BaseCube/BaseCube.gd" type="Script" id=1]
 [ext_resource path="res://assets/unsolved_cube_background.png" type="Texture" id=2]
-[ext_resource path="res://OQ_Toolkit/OQ_UI2D/OQ_UI2DLabel.tscn" type="PackedScene" id=3]
+[ext_resource path="res://assets/cube_sprites.png" type="Texture" id=4]
 
 [sub_resource type="PlaneMesh" id=1]
 size = Vector2( 0.02, 0.02 )
@@ -71,50 +71,38 @@ material/0 = SubResource( 7 )
 
 [node name="labels" type="Spatial" parent="."]
 
-[node name="top" parent="labels" instance=ExtResource( 3 )]
-transform = Transform( 1, 0, 0, 0, -1.62921e-07, 1, 0, -1, -1.62921e-07, 0, 0.0101, 0 )
-text = "T"
-margin = 0
-font_size_multiplier = 0.5
-background_color = Color( 0, 0, 0, 0 )
-transparent = true
+[node name="top" type="Sprite3D" parent="labels"]
+transform = Transform( 0.035, 0, 0, 0, -5.70222e-09, 0, 0, -0.035, 0, 0, 0.01, 0 )
+texture = ExtResource( 4 )
+region_enabled = true
+region_rect = Rect2( 576, 128, 64, 64 )
 
-[node name="bottom" parent="labels" instance=ExtResource( 3 )]
-transform = Transform( 1, 0, 0, 0, -1.62921e-07, -1, 0, 1, -1.62921e-07, 0, -0.0101, 0 )
-text = "B"
-margin = 0
-font_size_multiplier = 0.5
-background_color = Color( 0, 0, 0, 0 )
-transparent = true
+[node name="bottom" type="Sprite3D" parent="labels"]
+transform = Transform( -0.035, 1.14044e-08, 0, 1.85802e-15, 5.70222e-09, 0, -1.14044e-08, -0.035, 0, 0, -0.01, 0 )
+texture = ExtResource( 4 )
+region_enabled = true
+region_rect = Rect2( 576, 128, 64, 64 )
 
-[node name="back" parent="labels" instance=ExtResource( 3 )]
-transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, -0.0101 )
-text = "99"
-margin = 0
-font_size_multiplier = 0.5
-background_color = Color( 0, 0, 0, 0 )
-transparent = true
+[node name="back" type="Sprite3D" parent="labels"]
+transform = Transform( -0.035, 0, 0, 0, 0.035, 0, -1.14044e-08, 0, 0, 0, 0, -0.01 )
+texture = ExtResource( 4 )
+region_enabled = true
+region_rect = Rect2( 576, 128, 64, 64 )
 
-[node name="front" parent="labels" instance=ExtResource( 3 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.0101 )
-text = "99"
-margin = 0
-font_size_multiplier = 0.5
-background_color = Color( 0, 0, 0, 0 )
-transparent = true
+[node name="front" type="Sprite3D" parent="labels"]
+transform = Transform( 0.035, 0, 0, 0, 0.035, 0, 0, 0, 0, 0, 0, 0.01 )
+texture = ExtResource( 4 )
+region_enabled = true
+region_rect = Rect2( 576, 128, 64, 64 )
 
-[node name="left" parent="labels" instance=ExtResource( 3 )]
-transform = Transform( -1.62921e-07, 0, -1, 0, 1, 0, 1, 0, -1.62921e-07, -0.0101, 0, 0 )
-text = "L"
-margin = 0
-font_size_multiplier = 0.5
-background_color = Color( 0, 0, 0, 0 )
-transparent = true
+[node name="left" type="Sprite3D" parent="labels"]
+transform = Transform( -5.70222e-09, 0, 0, 0, 0.035, 0, 0.035, 0, 0, -0.01, 0, 0 )
+texture = ExtResource( 4 )
+region_enabled = true
+region_rect = Rect2( 576, 128, 64, 64 )
 
-[node name="right" parent="labels" instance=ExtResource( 3 )]
-transform = Transform( -1.62921e-07, 0, 1, 0, 1, 0, -1, 0, -1.62921e-07, 0.0101, 0, 0 )
-text = "R"
-margin = 0
-font_size_multiplier = 0.5
-background_color = Color( 0, 0, 0, 0 )
-transparent = true
+[node name="right" type="Sprite3D" parent="labels"]
+transform = Transform( -5.70222e-09, 0, 0, 0, 0.035, 0, -0.035, 0, 0, 0.01, 0, 0 )
+texture = ExtResource( 4 )
+region_enabled = true
+region_rect = Rect2( 576, 128, 64, 64 )

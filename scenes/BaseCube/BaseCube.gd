@@ -16,13 +16,11 @@ export (State) var state = State.Unsolved setget _set_state
 export var UnsolvedImage : StreamTexture = null
 export var highlight_color = Color.green setget _set_highlight_color
 
-var _ready = false;
+var __ready = false;
 
 func _ready():
 	for mesh_inst in $meshes.get_children():
 		mesh_inst.set_surface_material(0,SpatialMaterial.new())
-		
-	_ready = true
 	
 	# offset labels a distance off the cube surface to prevent artifacts
 	for label in $labels.get_children():
@@ -33,30 +31,49 @@ func _ready():
 			if side_plane != null:
 				new_translatation = side_plane.translation + side_plane.translation.normalized() * LABEL_OFFSET
 			label.translation = new_translatation
+		
+	__ready = true
 	
 func clear_labels():
-	set_fb_label("")
-	set_tb_label("")
-	set_lr_label("")
-		
-func set_fb_label(text : String):
-	$labels/front.text = text
-	$labels/back.text = text
-	var label_visible = not text.empty()
+	set_fb_label(-1)
+	set_tb_label(-1)
+	set_lr_label(-1)
+
+# each sprint is 64x64 pixels
+const SPRITE_SIZE = 64
+const NORMAL_NUMBERS_Y = SPRITE_SIZE * 2 # 3rd row
+const CIRCLED_NUMBERS_Y = SPRITE_SIZE * 3 # 4th row
+
+func set_fb_label(number : int):
+	var label_visible = false
+	if number >= 0:
+		label_visible = true
+		$labels/front.region_rect.position.y = NORMAL_NUMBERS_Y
+		$labels/front.region_rect.position.x = number * SPRITE_SIZE
+		$labels/back.region_rect.position.y = NORMAL_NUMBERS_Y
+		$labels/back.region_rect.position.x = number * SPRITE_SIZE
 	$labels/front.visible = label_visible
 	$labels/back.visible = label_visible
 		
-func set_tb_label(text):
-	$labels/top.text = text
-	$labels/bottom.text = text
-	var label_visible = not text.empty()
+func set_tb_label(number : int):
+	var label_visible = false
+	if number >= 0:
+		label_visible = true
+		$labels/top.region_rect.position.y = NORMAL_NUMBERS_Y
+		$labels/top.region_rect.position.x = number * SPRITE_SIZE
+		$labels/bottom.region_rect.position.y = NORMAL_NUMBERS_Y
+		$labels/bottom.region_rect.position.x = number * SPRITE_SIZE
 	$labels/top.visible = label_visible
 	$labels/bottom.visible = label_visible
 		
-func set_lr_label(text):
-	$labels/left.text = text
-	$labels/right.text = text
-	var label_visible = not text.empty()
+func set_lr_label(number : int):
+	var label_visible = false
+	if number >= 0:
+		label_visible = true
+		$labels/left.region_rect.position.y = NORMAL_NUMBERS_Y
+		$labels/left.region_rect.position.x = number * SPRITE_SIZE
+		$labels/right.region_rect.position.y = NORMAL_NUMBERS_Y
+		$labels/right.region_rect.position.x = number * SPRITE_SIZE
 	$labels/left.visible = label_visible
 	$labels/right.visible = label_visible
 		
@@ -68,7 +85,7 @@ func _get_light_highlight():
 func _set_state(value):
 	state = value
 	
-	if not _ready:
+	if not __ready:
 		yield(self,"ready")
 	
 	match value:
@@ -108,7 +125,7 @@ func _set_state(value):
 func _set_highlight_color(value):
 	highlight_color = value
 	
-	if not _ready:
+	if not __ready:
 		yield(self,"ready")
 	
 	# force update of color by setting state to current state

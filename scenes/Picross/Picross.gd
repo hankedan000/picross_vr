@@ -1,12 +1,11 @@
 extends Spatial
 class_name Picross
 
-
-# a copy of the BaseCube node that all copies will be instanced from
-var base_cube : Spatial = null
+export var no_gravity = false
+export var BaseCubeScene : PackedScene = null
 
 # rigid body will be reparented to parent node, we'll keep a reference to it here
-var body : RigidBody = null
+onready var body : RigidBody = $body
 var body_disjoined = false
 
 # FIXME make this dynamic it doesn't change with the origina size of the BaseCube.mesh
@@ -27,9 +26,15 @@ var _data = {
 var _cubes_mesh_by_xyz = {}
 
 func _ready():
-	# store a copy of the base cube for reinstancing later
-	base_cube = $BaseCube.duplicate()
-	remove_child($BaseCube)
+	# reparent the rigid body to the parent node so player can move object
+	var parent = get_parent()
+	if parent != null:
+		self.remove_child(body)
+		parent.call_deferred("add_child",body)
+		body_disjoined = true
+		
+	if no_gravity:
+		body.gravity_scale = 0
 
 func from_file(filepath : String):
 	vr.log_info("Loading picross from file %s" % filepath)
@@ -76,9 +81,8 @@ func load_unsolved_shape():
 			for z in range(_depth):
 				var cube = _add_cube(x,y,z)
 				if cube is BaseCube:
-					cube.state = BaseCube.State.Unsolved
-					cube.clear_labels()
-					cube.set_fb_label("9")
+					cube.state = BaseCube.State.Highlighted
+#					cube.clear_labels()
 
 const FACE_TYPE_LUT = {
 	"+x" : "right",
@@ -121,7 +125,7 @@ func _add_cube(x,y,z):
 		vr.log_warning("duplicate add of cube meash at x,y,z = %s" % [key])
 		return null
 	
-	var new_cube : Spatial = base_cube.duplicate()
+	var new_cube := BaseCubeScene.instance()
 	var origin = Vector3(int(x),int(y),int(z)) * CUBE_WIDTH
 	new_cube.transform = Transform(Basis(), origin)
 	$cubes.add_child(new_cube)
@@ -184,20 +188,16 @@ func _clear_all_cubes():
 	_cubes_mesh_by_xyz = {}
 	
 func _process(_delta):
+	if no_gravity:
+		body.gravity_scale = 0
+	else:
+		body.gravity_scale = 1
+			
 	# rigid body is movable by player, make everything else follow rigid body
-	if body != null and body_disjoined:
+	if body_disjoined and body.is_inside_tree():
 		global_transform = body.global_transform
 
 func _on_Picross_tree_exiting():
 	# remove the body that we reparented
 	if body != null and body_disjoined:
 		body.queue_free()
-
-func _on_Picross_tree_entered():
-	# reparent the rigid body to the parent node so player can move object
-	var parent = get_parent()
-	body = $body
-	if parent != null:
-		self.remove_child(body)
-		parent.call_deferred("add_child",body)
-		body_disjoined = true
