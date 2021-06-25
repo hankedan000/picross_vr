@@ -54,7 +54,7 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://OQ_Toolkit/OQ_ARVRController/scripts/OQ_ARVRController.gd"
 }, {
-"base": "Spatial",
+"base": "OQClass_GrabbableRigidBody",
 "class": "Picross",
 "language": "GDScript",
 "path": "res://scenes/Picross/Picross.gd"
