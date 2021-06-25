@@ -5,6 +5,7 @@ class_name BaseCube
 enum State {
 	Unsolved
 	Highlighted
+	MarkedToKeep
 	Mistake
 	Solved
 }
@@ -14,6 +15,9 @@ const LABEL_OFFSET = 0.0001
 
 export (State) var state = State.Unsolved setget _set_state
 export var UnsolvedImage : StreamTexture = null
+export var KeepColor = Color.green setget _set_keep_color
+export var RemoveColor = Color.red
+
 export var highlight_color = Color.green setget _set_highlight_color
 
 var __ready = false;
@@ -89,11 +93,6 @@ func set_lr_label(number : int, type : String):
 	$labels/left.visible = label_visible
 	$labels/right.visible = label_visible
 		
-func _get_light_highlight():
-	var light_color = highlight_color
-	light_color.s = 0.2
-	return light_color
-
 func _set_state(value):
 	state = value
 	
@@ -110,19 +109,24 @@ func _set_state(value):
 					mat.albedo_texture = UnsolvedImage
 		State.Highlighted:
 			$labels.visible = true
-			var albedo_color = _get_light_highlight()
 			for mesh_inst in $meshes.get_children():
 				var mat : Material = mesh_inst.get_surface_material(0)
 				if mat is SpatialMaterial:
-					mat.albedo_color = albedo_color
+					mat.albedo_color = highlight_color
+					mat.albedo_texture = UnsolvedImage
+		State.MarkedToKeep:
+			$labels.visible = true
+			for mesh_inst in $meshes.get_children():
+				var mat : Material = mesh_inst.get_surface_material(0)
+				if mat is SpatialMaterial:
+					mat.albedo_color = KeepColor
 					mat.albedo_texture = UnsolvedImage
 		State.Mistake:
 			$labels.visible = true
-			var albedo_color = _get_light_highlight()
 			for mesh_inst in $meshes.get_children():
 				var mat : Material = mesh_inst.get_surface_material(0)
 				if mat is SpatialMaterial:
-					mat.albedo_color = albedo_color
+					mat.albedo_color = KeepColor
 					# TODO i need to make a mistake texture
 					mat.albedo_texture = UnsolvedImage
 		State.Solved:
@@ -132,7 +136,16 @@ func _set_state(value):
 				if mat is SpatialMaterial:
 					mat.albedo_color = Color.white
 					mat.albedo_texture = null
-			
+
+func _set_keep_color(value):
+	KeepColor = value
+	
+	if not __ready:
+		yield(self,"ready")
+	
+	# force update of color by setting state to current state
+	if state == State.MarkedToKeep:
+		_set_state(state)
 
 func _set_highlight_color(value):
 	highlight_color = value
@@ -141,4 +154,5 @@ func _set_highlight_color(value):
 		yield(self,"ready")
 	
 	# force update of color by setting state to current state
-	_set_state(state)
+	if state == State.Highlighted:
+		_set_state(state)
