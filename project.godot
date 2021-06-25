@@ -58,6 +58,11 @@ _global_script_classes=[ {
 "class": "Picross",
 "language": "GDScript",
 "path": "res://scenes/Picross/Picross.gd"
+}, {
+"base": "Node",
+"class": "Player",
+"language": "GDScript",
+"path": "res://scripts/Player.gd"
 } ]
 _global_script_class_icons={
 "BaseCube": "",
@@ -69,7 +74,8 @@ _global_script_class_icons={
 "OQClass_ToolGrabController": "",
 "OQClass_ToolGrabLinearController": "",
 "OQ_ARVRController": "",
-"Picross": ""
+"Picross": "",
+"Player": ""
 }
 
 [application]
@@ -81,6 +87,7 @@ config/icon="res://icon.png"
 [autoload]
 
 vr="*res://OQ_Toolkit/vr_autoload.gd"
+player="*res://scripts/Player.gd"
 
 [display]
 

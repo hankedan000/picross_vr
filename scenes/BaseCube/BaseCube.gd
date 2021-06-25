@@ -4,7 +4,6 @@ class_name BaseCube
 
 enum State {
 	Unsolved
-	Highlighted
 	MarkedToKeep
 	Mistake
 	Solved
@@ -15,14 +14,16 @@ const LABEL_OFFSET = 0.0001
 
 export (State) var state = State.Unsolved setget _set_state
 export var UnsolvedImage : StreamTexture = null
-export var KeepColor = Color.green setget _set_keep_color
-export var RemoveColor = Color.red
 
-export var highlight_color = Color.green setget _set_highlight_color
+var highlighted = false setget _set_highlighted
 
-var __ready = false;
+var _highlight_color : Color = Color.white
+var __ready = false
 
 func _ready():
+	clear_labels()
+	_highlight_color = Player.KEEP_COLOR
+	
 	for mesh_inst in $meshes.get_children():
 		mesh_inst.set_surface_material(0,SpatialMaterial.new())
 	
@@ -35,6 +36,8 @@ func _ready():
 			if side_plane != null:
 				new_translatation = side_plane.translation + side_plane.translation.normalized() * LABEL_OFFSET
 			label.translation = new_translatation
+		
+	player.connect("selection_mode_changed",self,"_on_player_selection_mode_changed")
 		
 	__ready = true
 	
@@ -92,7 +95,25 @@ func set_lr_label(number : int, type : String):
 		$labels/right.region_rect.position.x = number * SPRITE_SIZE
 	$labels/left.visible = label_visible
 	$labels/right.visible = label_visible
-		
+	
+func _set_highlighted(value):
+	if state == State.Unsolved:
+		highlighted = value
+	else:
+		highlighted = false
+	
+	if highlighted:
+		_set_albedo_color(_highlight_color)
+	else:
+		_set_albedo_color(Color.white)
+
+func _set_albedo_color(color : Color):
+	if state == State.Unsolved:
+		for mesh_inst in $meshes.get_children():
+			var mat : Material = mesh_inst.get_surface_material(0)
+			if mat is SpatialMaterial:
+				mat.albedo_color = color
+
 func _set_state(value):
 	state = value
 	
@@ -107,26 +128,19 @@ func _set_state(value):
 				if mat is SpatialMaterial:
 					mat.albedo_color = Color.white
 					mat.albedo_texture = UnsolvedImage
-		State.Highlighted:
-			$labels.visible = true
-			for mesh_inst in $meshes.get_children():
-				var mat : Material = mesh_inst.get_surface_material(0)
-				if mat is SpatialMaterial:
-					mat.albedo_color = highlight_color
-					mat.albedo_texture = UnsolvedImage
 		State.MarkedToKeep:
 			$labels.visible = true
 			for mesh_inst in $meshes.get_children():
 				var mat : Material = mesh_inst.get_surface_material(0)
 				if mat is SpatialMaterial:
-					mat.albedo_color = KeepColor
+					mat.albedo_color = Player.KEEP_COLOR
 					mat.albedo_texture = UnsolvedImage
 		State.Mistake:
 			$labels.visible = true
 			for mesh_inst in $meshes.get_children():
 				var mat : Material = mesh_inst.get_surface_material(0)
 				if mat is SpatialMaterial:
-					mat.albedo_color = KeepColor
+					mat.albedo_color = Player.KEEP_COLOR
 					# TODO i need to make a mistake texture
 					mat.albedo_texture = UnsolvedImage
 		State.Solved:
@@ -137,22 +151,13 @@ func _set_state(value):
 					mat.albedo_color = Color.white
 					mat.albedo_texture = null
 
-func _set_keep_color(value):
-	KeepColor = value
+func _on_player_selection_mode_changed(selection_mode):
+	match selection_mode:
+		Player.SelectionMode.Keep:
+			_highlight_color = Player.KEEP_COLOR
+		Player.SelectionMode.Remove:
+			_highlight_color = Player.REMOVE_COLOR
 	
-	if not __ready:
-		yield(self,"ready")
-	
-	# force update of color by setting state to current state
-	if state == State.MarkedToKeep:
-		_set_state(state)
-
-func _set_highlight_color(value):
-	highlight_color = value
-	
-	if not __ready:
-		yield(self,"ready")
-	
-	# force update of color by setting state to current state
-	if state == State.Highlighted:
-		_set_state(state)
+	# update color if we're highlighted
+	if highlighted:
+		_set_albedo_color(_highlight_color)

@@ -7,11 +7,9 @@
 script = ExtResource( 2 )
 
 [node name="GreenCube" parent="." instance=ExtResource( 1 )]
-highlight_color = Color( 0.8, 1, 0.8, 1 )
 
 [node name="RedCube" parent="." instance=ExtResource( 1 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0471637, 0, 0 )
-highlight_color = Color( 0.8, 1, 0.8, 1 )
 
 [node name="Camera" type="Camera" parent="."]
 transform = Transform( 0.917276, 0.046613, -0.395515, -0.00319557, 0.993956, 0.10973, 0.398239, -0.0993892, 0.911881, -0.039029, 0.0247208, 0.0870976 )

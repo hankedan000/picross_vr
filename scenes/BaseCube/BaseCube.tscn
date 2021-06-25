@@ -38,9 +38,6 @@ extents = Vector3( 0.01, 0.01, 0.01 )
 script = ExtResource( 1 )
 state = 1
 UnsolvedImage = ExtResource( 2 )
-KeepColor = Color( 0.560784, 0.87451, 0.654902, 1 )
-RemoveColor = Color( 1, 0.596078, 0.596078, 1 )
-highlight_color = Color( 0.560784, 0.87451, 0.654902, 1 )
 
 [node name="meshes" type="Spatial" parent="."]
 

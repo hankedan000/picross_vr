@@ -13,6 +13,7 @@ var curr_cube : BaseCube = null
 
 func _ready():
 	raycast.cast_to = Vector3(0,max_cast_length,0)
+	_on_player_selection_mode_changed(player.selection_mode)
 
 func _process(_delta):
 	if ! enabled:
@@ -29,13 +30,13 @@ func _process(_delta):
 				pass
 			elif curr_cube != null:
 				# casting upon a different cube, so unhighlight previous cube
-				curr_cube.state = BaseCube.State.Unsolved
+				curr_cube.highlighted = false
 				curr_cube = collider_parent
-				collider_parent.state = BaseCube.State.Highlighted
+				collider_parent.highlighted = true
 			else:
 				# wasn't casting upon any cube's before
 				curr_cube = collider_parent
-				collider_parent.state = BaseCube.State.Highlighted
+				collider_parent.highlighted = true
 	else:
 		# not coliding with anything now
 		if curr_cube != null:
@@ -49,3 +50,14 @@ func _process(_delta):
 		pointer_length = ray.length()
 	mesh_inst.transform.origin = Vector3(0,pointer_length/2,0)
 	mesh_inst.mesh.height = pointer_length
+
+func _set_color(color : Color):
+	var mat : SpatialMaterial = $RaycastPosition/MeshInstance.get_surface_material(0)
+	mat.albedo_color = color
+
+func _on_player_selection_mode_changed(selection_mode):
+	match selection_mode:
+		Player.SelectionMode.Keep:
+			_set_color(Player.KEEP_COLOR)
+		Player.SelectionMode.Remove:
+			_set_color(Player.REMOVE_COLOR)

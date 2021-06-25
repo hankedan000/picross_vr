@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://scenes/CubeRaycast/CubeRaycast.gd" type="Script" id=1]
 
@@ -6,6 +6,8 @@
 top_radius = 0.002
 bottom_radius = 0.002
 height = 0.05
+
+[sub_resource type="SpatialMaterial" id=2]
 
 [node name="CubeRaycast" type="Spatial"]
 script = ExtResource( 1 )
@@ -22,4 +24,4 @@ collide_with_bodies = false
 [node name="MeshInstance" type="MeshInstance" parent="RaycastPosition"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0254142, 0 )
 mesh = SubResource( 1 )
-material/0 = null
+material/0 = SubResource( 2 )
