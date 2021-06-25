@@ -14,6 +14,7 @@ var curr_cube : BaseCube = null
 func _ready():
 	raycast.cast_to = Vector3(0,max_cast_length,0)
 	_on_player_selection_mode_changed(player.selection_mode)
+	player.connect("selection_mode_changed",self,"_on_player_selection_mode_changed")
 
 func _process(_delta):
 	if ! enabled:
