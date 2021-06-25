@@ -14,6 +14,7 @@ const LABEL_OFFSET = 0.0001
 
 export (State) var state = State.Unsolved setget _set_state
 export var UnsolvedImage : StreamTexture = null
+export var MistakeImage : StreamTexture = null
 
 var highlighted = false setget _set_highlighted
 # [x,y,z] index of where the cube is located within the picross
@@ -143,8 +144,7 @@ func _set_state(value):
 				var mat : Material = mesh_inst.get_surface_material(0)
 				if mat is SpatialMaterial:
 					mat.albedo_color = Player.KEEP_COLOR
-					# TODO i need to make a mistake texture
-					mat.albedo_texture = UnsolvedImage
+					mat.albedo_texture = MistakeImage
 		State.Solved:
 			$labels.visible = false
 			for mesh_inst in $meshes.get_children():

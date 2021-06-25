@@ -1,7 +1,8 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=13 format=2]
 
 [ext_resource path="res://scenes/BaseCube/BaseCube.gd" type="Script" id=1]
 [ext_resource path="res://assets/unsolved_cube_background.png" type="Texture" id=2]
+[ext_resource path="res://assets/mistake_cube_background.png" type="Texture" id=3]
 [ext_resource path="res://assets/cube_sprites.png" type="Texture" id=4]
 
 [sub_resource type="PlaneMesh" id=1]
@@ -38,6 +39,7 @@ extents = Vector3( 0.01, 0.01, 0.01 )
 script = ExtResource( 1 )
 state = 1
 UnsolvedImage = ExtResource( 2 )
+MistakeImage = ExtResource( 3 )
 
 [node name="meshes" type="Spatial" parent="."]
 
