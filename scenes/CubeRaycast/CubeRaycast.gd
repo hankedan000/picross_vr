@@ -8,6 +8,8 @@ export var max_cast_length = 0.20# 10cm
 onready var raycast = $RaycastPosition/RayCast
 onready var mesh_inst := $RaycastPosition/MeshInstance
 
+# the controller that the ray cast is a child of
+var controller : ARVRController = null
 # the cube we're currently casting upon
 var curr_cube : BaseCube = null
 
@@ -15,6 +17,17 @@ func _ready():
 	raycast.cast_to = Vector3(0,max_cast_length,0)
 	_on_player_selection_mode_changed(player.selection_mode)
 	player.connect("selection_mode_changed",self,"_on_player_selection_mode_changed")
+	
+	# get our parent controller node
+	var parent = get_parent()
+	while parent != null:
+		if parent is ARVRController:
+			controller = parent
+			break
+		parent = parent.get_parent()
+		
+	if controller == null:
+		vr.log_warning("in CubeRaycast._ready() : CubeRaycast is not a child of an ARVRController")
 
 func _process(_delta):
 	if ! enabled:
@@ -37,12 +50,12 @@ func _process(_delta):
 			else:
 				# wasn't casting upon any cube's before
 				curr_cube = collider_parent
-				collider_parent.highlighted = true
+				curr_cube.highlighted = true
 	else:
 		# not coliding with anything now
 		if curr_cube != null:
 			# release highlight if we were colliding with a cube before
-			curr_cube.state = BaseCube.State.Unsolved
+			curr_cube.highlighted = false
 			curr_cube = null
 			
 	var pointer_length = max_cast_length
@@ -51,6 +64,28 @@ func _process(_delta):
 		pointer_length = ray.length()
 	mesh_inst.transform.origin = Vector3(0,pointer_length/2,0)
 	mesh_inst.mesh.height = pointer_length
+	
+	# handle cube selection action (ie. keep, remove, etc)
+	if curr_cube and controller and controller._button_just_pressed(vr.CONTROLLER_BUTTON.INDEX_TRIGGER):
+		match player.selection_mode:
+			Player.SelectionMode.Keep:
+				# toggle cube between keep/unkeep
+				if curr_cube.state == BaseCube.State.MarkedToKeep:
+					curr_cube.state = BaseCube.State.Unsolved
+				elif curr_cube.state == BaseCube.State.Unsolved:
+					curr_cube.state = BaseCube.State.MarkedToKeep
+			Player.SelectionMode.Remove:
+				if curr_cube.state == BaseCube.State.Unsolved:
+					var cube_key = curr_cube.key
+					if game.active_picross.remove_cube(cube_key):
+						# cube successfully removed
+						curr_cube = null
+					else:
+						# OUCH! tried to remove a cube that's part of final solution
+						# give player a violent rumble to let them know :P
+						if controller is OQ_ARVRController:
+							controller.simple_rumble(0.6,0.3)
+					
 
 func _set_color(color : Color):
 	var mat : SpatialMaterial = $RaycastPosition/MeshInstance.get_surface_material(0)

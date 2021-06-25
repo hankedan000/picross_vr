@@ -16,6 +16,8 @@ export (State) var state = State.Unsolved setget _set_state
 export var UnsolvedImage : StreamTexture = null
 
 var highlighted = false setget _set_highlighted
+# [x,y,z] index of where the cube is located within the picross
+var key = null
 
 var _highlight_color : Color = Color.white
 var __ready = false
@@ -99,13 +101,13 @@ func set_lr_label(number : int, type : String):
 func _set_highlighted(value):
 	if state == State.Unsolved:
 		highlighted = value
+		
+		if highlighted:
+			_set_albedo_color(_highlight_color)
+		else:
+			_set_albedo_color(Color.white)
 	else:
 		highlighted = false
-	
-	if highlighted:
-		_set_albedo_color(_highlight_color)
-	else:
-		_set_albedo_color(Color.white)
 
 func _set_albedo_color(color : Color):
 	if state == State.Unsolved:

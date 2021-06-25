@@ -21,6 +21,7 @@ var _data = {
 	"fills" : []
 }
 
+# a map of the all the visible cubes keyed by (x,y,z) index
 var _cubes_by_xyz = {}
 
 func _ready():
@@ -57,12 +58,31 @@ func add_cube(x,y,z):
 		vr.log_warning('x,y,z must be >= 0. x = %d; y = %d; z = %d;' % [x,y,z])
 		return
 		
-	_data.shape.push_back([x,y,z])
+	var key = _make_key(x,y,z)
+	if not _data.shape.has(key):
+		_data.shape.push_back(key)
 	
 	# update shape bounds
 	_width = max(_width,x+1)
 	_height = max(_height,y+1)
 	_depth = max(_depth,z+1)
+	
+# called when player removes a cube from picross
+# returns false if removal was a mistake (ie. removed a cube that's part of the
+# solution); true otherwise
+func remove_cube(cube_key):
+	var cube = _cubes_by_xyz.get(cube_key,null)
+	if cube and is_a_solved_cube(cube_key):
+		cube.state = BaseCube.State.Mistake
+		return false
+	elif cube:
+		cube.queue_free()
+		_cubes_by_xyz.erase(cube_key)
+	return true
+	
+# returns true if the cube referenced by the key is part of the final solution
+func is_a_solved_cube(cube_key):
+	return _data.shape.has(cube_key)
 	
 func load_unsolved_shape():
 	_clear_all_cubes()
@@ -152,6 +172,7 @@ func _add_cube(x,y,z):
 	var new_cube := BaseCubeScene.instance()
 	var origin = Vector3(int(x),int(y),int(z)) * CUBE_WIDTH
 	new_cube.transform = Transform(Basis(), origin)
+	new_cube.key = key
 	$cubes.add_child(new_cube)
 	_cubes_by_xyz[key] = new_cube
 	_update_grab_shape()
