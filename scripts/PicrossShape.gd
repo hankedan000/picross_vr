@@ -2,7 +2,7 @@ extends Object
 class_name PicrossShape
 
 enum LineDirection {
-	row, col, depth
+	row = 0, col = 1, depth = 2
 }
 
 enum CellState {
@@ -341,19 +341,6 @@ func getLineEdges(x: int, y: int, d):
 
 # static methods
 
-static func generate(dims, generator: FuncRef):
-	var cells = [];
-
-	for k in range(dims[2]):
-		for j in range(dims[1]):
-			for i in range(dims[1]):
-				var val = generator.call_func(i, j, k);
-				if val is bool:
-					cells.push_back(int(val))
-				else:
-					cells.push_back(val)
-	return PicrossShape.new(cells,dims)
-
 #func get editHistory(): ShapeEditHistory {
 #	return {
 #		history: self.edits_history,
@@ -393,11 +380,8 @@ static func generate(dims, generator: FuncRef):
 func toJSON():
 	return {
 		"dims" : self.dims(),
-		"cells" : self._cells
+		"cells" : self._cells.data()
 	}
-
-static func fromJSON(shape):
-	return PicrossShape.new(shape.cells, shape.dims);
 
 func fillBoundingBox():
 	var box = self.computeBoundingBox();

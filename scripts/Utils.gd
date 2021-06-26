@@ -1,4 +1,4 @@
-extends Node
+extends Object
 class_name Utils
 
 static func make_2d_array(x:int, y:int, val):
