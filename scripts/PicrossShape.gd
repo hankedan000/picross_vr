@@ -21,6 +21,11 @@ class ShapeEdit:
 	var from# CellState
 	var to# CellState
 	var idx# number
+	
+	func _init(from,to,idx):
+		self.from = from
+		self.to = to
+		self.idx = idx
 
 class ShapeEditHistory:
 	var history# ShapeEdit[]
@@ -33,9 +38,9 @@ class Box:
 var _cells := Array3D.new([],[0,0,0])# Array3D<CellState>;
 var edits_history# ShapeEdit[];
 
-func _init(cells,dims):
+func _init(cells_data,dims):
 	edits_history = []
-	self._cells = cells
+	self._cells = Array3D.new(cells_data,dims)
 
 # returns a Box such that all dimensions of dims are positive
 func boundingBox(from, to) -> Box:
@@ -71,14 +76,14 @@ func computeBoundingBox() -> Box:
 			while coords[PuzzleGenerator.coord_y[d]] < self._cells.dims[PuzzleGenerator.coord_y[d]]:
 				coords[d] = 0
 				while coords[d] < _min[d]:
-					if self._cells[coords[0]][coords[1]][coords[2]] != CellState.blank:
+					if self._cells.at(coords[0],coords[1],coords[2]) != CellState.blank:
 						_min[d] = coords[d];
 						break;
 					coords[d] += 1
 					
 				coords[d] = self._cells.dims[d] - 1
 				while coords[d] >= _max[d]:
-					if self._cells[coords[0]][coords[1]][coords[2]] != CellState.blank:
+					if self._cells.at(coords[0],coords[1],coords[2]) != CellState.blank:
 						_max[d] = coords[d];
 						break;
 					coords[d] -= 1
@@ -99,18 +104,13 @@ func setCell(i: int, j: int, k: int, state) -> bool:
 		k < 0 || k >= self.dims[2]):
 		return false;
 
-	var prev = self._cells[i][j][k];
+	var prev = self._cells.at(i,j,k);
 	var changed = prev != state;
 
 	if (changed):
-		pass
-#		var idx = self._cells.find([i, j, k]);
-#		var se := ShapeEdit
-#		se.from = prev
-#		se.to = state
-#		se.id = idx
-#		self.edits_history.push_back(se);
-#		self._cells.setAtIdx(idx, state);
+		var idx = self._cells.idx(i, j, k);
+		self.edits_history.push_back(ShapeEdit.new(prev, state, idx));
+		self._cells.setAtIdx(idx, state);
 
 	return changed;
 
@@ -120,7 +120,7 @@ func getCell(i: int, j: int, k: int):
 		k < 0 || k >= self.dims[2]):
 		return CellState.blank;
 
-	return self._cells[i][j][k];
+	return self._cells.at(i,j,k);
 
 func cellExists(i: int, j: int, k: int) -> bool:
 	var c = self.getCell(i, j, k);
