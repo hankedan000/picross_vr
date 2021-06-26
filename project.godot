@@ -9,6 +9,11 @@
 config_version=4
 
 _global_script_classes=[ {
+"base": "Object",
+"class": "Array3D",
+"language": "GDScript",
+"path": "res://scripts/Array3D.gd"
+}, {
 "base": "Spatial",
 "class": "BaseCube",
 "language": "GDScript",
@@ -60,11 +65,37 @@ _global_script_classes=[ {
 "path": "res://scenes/Picross/Picross.gd"
 }, {
 "base": "Node",
+"class": "PicrossPuzzle",
+"language": "GDScript",
+"path": "res://scripts/PicrossPuzzle.gd"
+}, {
+"base": "Object",
+"class": "PicrossShape",
+"language": "GDScript",
+"path": "res://scripts/PicrossShape.gd"
+}, {
+"base": "Node",
+"class": "PicrossSolver",
+"language": "GDScript",
+"path": "res://scripts/PicrossSolver.gd"
+}, {
+"base": "Node",
 "class": "Player",
 "language": "GDScript",
 "path": "res://scripts/Player.gd"
+}, {
+"base": "Node",
+"class": "PuzzleGenerator",
+"language": "GDScript",
+"path": "res://scripts/PuzzleGenerator.gd"
+}, {
+"base": "Node",
+"class": "Utils",
+"language": "GDScript",
+"path": "res://scripts/Utils.gd"
 } ]
 _global_script_class_icons={
+"Array3D": "",
 "BaseCube": "",
 "Feature_RigidBodyGrab": "",
 "Feature_ToolGrab": "",
@@ -75,7 +106,12 @@ _global_script_class_icons={
 "OQClass_ToolGrabLinearController": "",
 "OQ_ARVRController": "",
 "Picross": "",
-"Player": ""
+"PicrossPuzzle": "",
+"PicrossShape": "",
+"PicrossSolver": "",
+"Player": "",
+"PuzzleGenerator": "",
+"Utils": ""
 }
 
 [application]
