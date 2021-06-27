@@ -84,46 +84,56 @@ func remove_cube(cube_key):
 func is_a_solved_cube(cube_key):
 	return _data.shape.has(cube_key)
 	
-func load_unsolved_shape():
+func load_unsolved_shape(puzzle: PicrossPuzzle):
 	_clear_all_cubes()
 	
+	print("Loading '%s' unsolved shape" % puzzle.name())
+	var dims = puzzle.dims()
+	
 	# load cubes that bound the final shape
-	for x in range(_width):
-		for y in range(_height):
-			for z in range(_depth):
+	for x in range(dims[0]):
+		for y in range(dims[1]):
+			for z in range(dims[2]):
 				var cube = _add_cube(x,y,z)
 				if cube is BaseCube:
 					cube.state= BaseCube.State.Unsolved
 					cube.clear_labels()
 					
-	for hint_group in _data['hint_groups']:
-		for hint in hint_group['hints']:
-			var value = hint['value']
-			var type = hint['type']
-			if hint_group['axis'] == 'x':
-				var y = hint['location']['y']
-				var z = hint['location']['z']
-				for x in range(_width):
-					var key = _make_key(x,y,z)
+	# h x d hints
+	var hd_hints = puzzle.hints()[0]
+	for j in range(dims[1]):
+		for k in range(dims[2]):
+			var hint = hd_hints[j][k]
+			if hint != null:
+				for i in range(dims[0]):
+					var key = _make_key(i,j,k)
 					var cube : BaseCube = _cubes_by_xyz.get(key,null)
 					if cube != null:
-						cube.set_lr_label(value,type)
-			elif hint_group['axis'] == 'y':
-				var x = hint['location']['x']
-				var z = hint['location']['z']
-				for y in range(_height):
-					var key = _make_key(x,y,z)
+						cube.set_lr_label(hint.num,hint.type)
+					
+	# w x d hints
+	var wd_hints = puzzle.hints()[1]
+	for i in range(dims[0]):
+		for k in range(dims[2]):
+			var hint = wd_hints[i][k]
+			if hint != null:
+				for j in range(dims[1]):
+					var key = _make_key(i,j,k)
 					var cube : BaseCube = _cubes_by_xyz.get(key,null)
 					if cube != null:
-						cube.set_tb_label(value,type)
-			elif hint_group['axis'] == 'z':
-				var x = hint['location']['x']
-				var y = hint['location']['y']
-				for z in range(_depth):
-					var key = _make_key(x,y,z)
+						cube.set_tb_label(hint.num,hint.type)
+					
+	# w x h hints
+	var wh_hints = puzzle.hints()[2]
+	for i in range(dims[0]):
+		for j in range(dims[1]):
+			var hint = wd_hints[i][j]
+			if hint != null:
+				for k in range(dims[2]):
+					var key = _make_key(i,j,k)
 					var cube : BaseCube = _cubes_by_xyz.get(key,null)
 					if cube != null:
-						cube.set_fb_label(value,type)
+						cube.set_fb_label(hint.num,hint.type)
 
 const FACE_TYPE_LUT = {
 	"+x" : "right",
@@ -134,14 +144,24 @@ const FACE_TYPE_LUT = {
 	"-z" : "back"
 }
 
-func load_solved_shape():
+func load_solved_shape(puzzle: PicrossPuzzle):
 	_clear_all_cubes()
 	
 	# load the final shape
-	for cube_dat in _data.shape:
-		var cube = _add_cube(cube_dat[0],cube_dat[1],cube_dat[2])
-		if cube:
-			cube.state = BaseCube.State.Solved
+	print("Loading '%s'" % puzzle.name())
+	var shape : PicrossShape = PicrossSolver.bruteForceSolve(puzzle)
+	if shape == null:
+		print("'%s' is not solvable!" % puzzle.name())
+		return
+	
+	var dims = shape.dims()
+	for i in range(dims[0]):
+		for j in range(dims[1]):
+			for k in range(dims[2]):
+				var c = shape.getCell(i,j,k)
+				if c == PicrossTypes.CellState.painted:
+					var cube = _add_cube(i,j,k)
+					cube.state = BaseCube.State.Solved
 		
 	# load fill textures
 	var fills = _data.get('fills',[])

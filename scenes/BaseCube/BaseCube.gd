@@ -54,16 +54,17 @@ const SPRITE_SIZE = 64
 const NORMAL_NUMBERS_Y = SPRITE_SIZE * 2 # 3rd row
 const CIRCLED_NUMBERS_Y = SPRITE_SIZE * 3 # 4th row
 
-func _label_type_to_sprite_sheet_y(type : String):
-	if type == "normal":
-		return NORMAL_NUMBERS_Y
-	elif type == "circle":
-		return CIRCLED_NUMBERS_Y
-	else:
-		vr.log_warning("unsupported label type %s" % type)
-		return NORMAL_NUMBERS_Y
+func _label_type_to_sprite_sheet_y(type):
+	match type:
+		PicrossTypes.HintType.simple:
+			return NORMAL_NUMBERS_Y
+		PicrossTypes.HintType.circle:
+			return CIRCLED_NUMBERS_Y
+		_:
+			vr.log_warning("unsupported label type %s" % type)
+			return NORMAL_NUMBERS_Y
 
-func set_fb_label(number : int, type : String):
+func set_fb_label(number : int, type):
 	var label_visible = false
 	if number >= 0:
 		label_visible = true
@@ -75,7 +76,7 @@ func set_fb_label(number : int, type : String):
 	$labels/front.visible = label_visible
 	$labels/back.visible = label_visible
 		
-func set_tb_label(number : int, type : String):
+func set_tb_label(number : int, type):
 	var label_visible = false
 	if number >= 0:
 		label_visible = true
@@ -87,7 +88,7 @@ func set_tb_label(number : int, type : String):
 	$labels/top.visible = label_visible
 	$labels/bottom.visible = label_visible
 		
-func set_lr_label(number : int, type : String):
+func set_lr_label(number : int, type):
 	var label_visible = false
 	if number >= 0:
 		label_visible = true

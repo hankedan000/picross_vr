@@ -5,8 +5,11 @@ enum LineDirection {
 	row = 0, col = 1, depth = 2
 }
 
+# blank   -> cell is not part of final solution (ie. has been solved)
+# unknown -> cell has not been solved yet
+# painted -> cell is part of final solution's shape (ie. has been solved)
 enum CellState {
-	blank, unknown, painted
+	blank = 0, unknown = 1, painted = 2
 }
 
 enum HintType {

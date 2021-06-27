@@ -4,5 +4,7 @@ onready var picross := $Picross
 
 func _ready():
 	game.active_picross = picross
-	picross.from_file("res://assets/puzzles/heart1.json")
-	picross.load_unsolved_shape()
+	var puzzle_json = vr.load_json_file("res://assets/puzzles/platypus.json")
+	var puzzle = PicrossPuzzleUtils.fromJSON(puzzle_json)
+	picross.load_unsolved_shape(puzzle)
+	
