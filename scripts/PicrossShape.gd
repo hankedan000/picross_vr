@@ -1,12 +1,12 @@
 extends Object
 class_name PicrossShape
 
-var _cells := Array3D.new([],[0,0,0])# Array3D<CellState>;
-var edits_history# ShapeEdit[];
+var _cells := Array3D.new()# Array3D<CellState>;
+var edits_history = []# ShapeEdit[];
 
-func _init(cells_data,dims):
+func initFromDimState(dims, fill_state):
 	edits_history = []
-	self._cells = Array3D.new(cells_data,dims)
+	self._cells.initDimsFill(dims,fill_state)
 
 # returns a Box such that all dimensions of dims are positive
 func boundingBox(from, to) -> PicrossTypes.Box:
@@ -65,9 +65,9 @@ func trim():
 
 # returns whether the state has changed
 func setCell(i: int, j: int, k: int, state) -> bool:
-	if (i < 0 || i >= self.dims[0] ||
-		j < 0 || j >= self.dims[1] ||
-		k < 0 || k >= self.dims[2]):
+	if (i < 0 || i >= self.dims()[0] ||
+		j < 0 || j >= self.dims()[1] ||
+		k < 0 || k >= self.dims()[2]):
 		return false;
 
 	var prev = self._cells.at(i,j,k);
@@ -81,9 +81,9 @@ func setCell(i: int, j: int, k: int, state) -> bool:
 	return changed;
 
 func getCell(i: int, j: int, k: int):
-	if (i < 0 || i >= self.dims[0] ||
-		j < 0 || j >= self.dims[1] ||
-		k < 0 || k >= self.dims[2]):
+	if (i < 0 || i >= self.dims()[0] ||
+		j < 0 || j >= self.dims()[1] ||
+		k < 0 || k >= self.dims()[2]):
 		return PicrossTypes.CellState.blank;
 
 	return self._cells.at(i,j,k);
@@ -96,17 +96,17 @@ func cells():
 	return self._cells;
 
 func dims():
-	return self._cells.dims;
+	return self._cells.dims();
 
 func getRowCellCounts():
-	var row_counts = Utils.make_2d_array(self.dims[1],self.dims[2],[])
+	var row_counts = Utils.make_2d_array(self.dims()[1],self.dims()[2],[])
 	var blank = false;
 
-	for k in range(self.dims[2]):
-		for j in range(self.dims[1]):
+	for k in range(self.dims()[2]):
+		for j in range(self.dims()[1]):
 			#ith row
 			var row_rep = []
-			for i in range(self.dims[0]):
+			for i in range(self.dims()[0]):
 				if (self.cellExists(i, j, k)):
 					if (row_rep.size() == 0 || blank):
 						row_rep.push_back(1);
@@ -121,14 +121,14 @@ func getRowCellCounts():
 	return row_counts;
 
 func getColCellCounts():
-	var col_counts = Utils.make_2d_array(self.dims[0],self.dims[2],[])
+	var col_counts = Utils.make_2d_array(self.dims()[0],self.dims()[2],[])
 	var blank = false;
 
-	for k in range(self.dims[2]):
-		for i in range(self.dims[0]):
+	for k in range(self.dims()[2]):
+		for i in range(self.dims()[0]):
 			#jth column
 			var col_rep = []
-			for j in range(self.dims[1]):
+			for j in range(self.dims()[1]):
 				if (self.cellExists(i, j, k)):
 					if (col_rep.size() == 0 || blank):
 						col_rep.push_back(1);
@@ -142,13 +142,13 @@ func getColCellCounts():
 	return col_counts;
 
 func getDepthCellCounts():
-	var depth_counts = Utils.make_2d_array(self.dims[0],self.dims[1],[])
+	var depth_counts = Utils.make_2d_array(self.dims()[0],self.dims()[1],[])
 	var blank = false;
 
-	for j in range(self.dims[1]):
-		for i in range(self.dims[0]):
+	for j in range(self.dims()[1]):
+		for i in range(self.dims()[0]):
 			var depth_rep = []
-			for k in range(self.dims[2]):
+			for k in range(self.dims()[2]):
 				if (self.cellExists(i, j, k)):
 					if (depth_rep.size() == 0 || blank):
 						depth_rep.push_back(1);
@@ -171,7 +171,7 @@ func description():
 func getRow(j: int, k: int): # returns array of CellState
 	var row = [];
 
-	for i in range(self.dims[0]):
+	for i in range(self.dims()[0]):
 		row.push_back(self.getCell(i, j, k));
 
 	return row;
@@ -179,7 +179,7 @@ func getRow(j: int, k: int): # returns array of CellState
 func getCol(i: int, k: int): # returns array of CellState
 	var col = [];
 
-	for j in range(self.dims[1]):
+	for j in range(self.dims()[1]):
 		col.push_back(self.getCell(i, j, k));
 
 	return col;
@@ -187,7 +187,7 @@ func getCol(i: int, k: int): # returns array of CellState
 func getDepth(i: int, j: int): # returns array of CellState
 	var depth = [];
 
-	for k in range(self.dims[2]):
+	for k in range(self.dims()[2]):
 		depth.push_back(self.getCell(i, j, k));
 
 	return depth;
@@ -204,88 +204,76 @@ func getLine(x: int, y: int, dir):  # returns array of CellState
 	return null;
 
 # returns whether the state of the line changes
-#func setRow(j: int, k: int, info: LineInfo): boolean {
-#
-#	if (info === null) {
-#		return false;
-#	}
-#
-#	let changed = false;
-#
-#	for (const block of info.blocks) {
-#		for (let i = block.start; i < block.start + block.len; i++) {
-#			changed = self.setCell(i, j, k, CellState.painted) || changed;
-#		}
-#	}
-#
-#	for (const blank of info.blanks) {
-#		for (let i = blank.start; i < blank.start + blank.len; i++) {
-#			changed = self.setCell(i, j, k, CellState.blank) || changed;
-#		}
-#	}
-#
-#	return changed;
-#}
+func setRow(j: int, k: int, info: PicrossTypes.LineInfo) -> bool:
+	if (info == null):
+		return false;
 
-#func setCol(i: int, k: int, info: LineInfo): boolean {
-#
-#	let changed = false;
-#
-#	if (info === null) {
-#		return;
-#	}
-#
-#	for (const block of info.blocks) {
-#		for (let j = block.start; j < block.start + block.len; j++) {
-#			changed = self.setCell(i, j, k, CellState.painted) || changed;
-#		}
-#	}
-#
-#	for (const blank of info.blanks) {
-#		for (let j = blank.start; j < blank.start + blank.len; j++) {
-#			changed = self.setCell(i, j, k, CellState.blank) || changed;
-#		}
-#	}
-#
-#	return changed;
-#}
+	var changed = false;
 
-#func setDepth(i: int, j: int, info: LineInfo): boolean {
-#
-#	let changed = false;
-#
-#	if (info === null) {
-#		return;
-#	}
-#
-#	for (const block of info.blocks) {
-#		for (let k = block.start; k < block.start + block.len; k++) {
-#			changed = self.setCell(i, j, k, CellState.painted) || changed;
-#		}
-#	}
-#
-#	for (const blank of info.blanks) {
-#		for (let k = blank.start; k < blank.start + blank.len; k++) {
-#			changed = self.setCell(i, j, k, CellState.blank) || changed;
-#		}
-#	}
-#
-#	return changed;
-#}
+	for block in info.blocks:
+		var i = block.start
+		while i < block.start + block.length:
+			changed = self.setCell(i, j, k, PicrossTypes.CellState.painted) || changed;
+			i+=1
 
-#func setLine(x: int, y: int, dir: LineDirection, info: LineInfo): boolean {
-#
-#	switch (dir) {
-#		case LineDirection.row:
-#			return self.setRow(x, y, info);
-#		case LineDirection.col:
-#			return self.setCol(x, y, info);
-#		case LineDirection.depth:
-#			return self.setDepth(x, y, info);
-#	}
-#
-#	return null;
-#}
+	for blank in info.blanks:
+		var i = blank.start
+		while i < blank.start + blank.length:
+			changed = self.setCell(i, j, k, PicrossTypes.CellState.blank) || changed;
+			i+=1
+
+	return changed;
+
+func setCol(i: int, k: int, info: PicrossTypes.LineInfo) -> bool:
+	var changed = false;
+
+	if (info == null):
+		return false;
+
+	for block in info.blocks:
+		var j = block.start
+		while j < block.start + block.length:
+			changed = self.setCell(i, j, k, PicrossTypes.CellState.painted) || changed;
+			j+=1
+
+	for blank in info.blanks:
+		var j = blank.start
+		while j < blank.start + blank.length:
+			changed = self.setCell(i, j, k, PicrossTypes.CellState.blank) || changed;
+			j+=1
+
+	return changed;
+
+func setDepth(i: int, j: int, info: PicrossTypes.LineInfo) -> bool:
+	var changed = false;
+
+	if (info == null):
+		return false;
+
+	for block in info.blocks:
+		var k = block.start
+		while k < block.start + block.length:
+			changed = self.setCell(i, j, k, PicrossTypes.CellState.painted) || changed;
+			k+=1
+
+	for blank in info.blanks:
+		var k = blank.start
+		while k < blank.start + blank.length:
+			changed = self.setCell(i, j, k, PicrossTypes.CellState.blank) || changed;
+			k+=1
+
+	return changed;
+
+func setLine(x: int, y: int, dir, info: PicrossTypes.LineInfo) -> bool:
+	match (dir):
+		PicrossTypes.LineDirection.row:
+			return self.setRow(x, y, info);
+		PicrossTypes.LineDirection.col:
+			return self.setCol(x, y, info);
+		PicrossTypes.LineDirection.depth:
+			return self.setDepth(x, y, info);
+
+	return false;
 
 
 # returns the list of cells surrounded by a blank in the line
@@ -319,13 +307,11 @@ func getLineEdges(x: int, y: int, d):
 #	self.editHistory.history = eh.history;
 #}
 
-#func restore(): void {
-#	for (const { from, idx: at } of self.edits_history) {
-#		self._cells.setAtIdx(at, from);
-#	}
-#
-#	self.edits_history = [];
-#}
+func restore():
+	for edit in self.edits_history:
+		self._cells.setAtIdx(edit.idx, edit.from);
+
+	self.edits_history = [];
 
 #func reset(): void {
 #	for (const { idx: at } of self.edits_history) {

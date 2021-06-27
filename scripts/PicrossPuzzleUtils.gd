@@ -1,11 +1,11 @@
 extends Node
 class_name PicrossPuzzleUtils
 
-static func fromJSON(puzzle):
+static func fromJSON(puzzle) -> PicrossPuzzle:
 	var pzl = PicrossPuzzle.new(puzzle.dims, puzzle.hints);
-	pzl.name = puzzle.name;
+	pzl._name = puzzle.name;
 	return pzl;
 
-static func isSolvable(puzzle) -> bool:
-	# return PicrossSolver.hierarchicalSolve(this) != null;
-	return PicrossSolver.bruteForceSolve(puzzle) != null;
+#static func isSolvable(puzzle) -> bool:
+#	# return PicrossSolver.hierarchicalSolve(this) != null;
+#	return PicrossSolver.bruteForceSolve(puzzle) != null;

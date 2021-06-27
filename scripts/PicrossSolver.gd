@@ -1,60 +1,58 @@
 extends Node
 class_name PicrossSolver
 
-func simpleLeftMost(seq, line):
+const TRACE = false
+
+static func simpleLeftMost(seq, line):
 	var blocks = [];
 	var last_block_end = 0;
 
 	var loop_continue = false
-	var first_loop = true
-	while first_loop or loop_continue:
-		first_loop = false
-		loop_continue = false
-		for i in range(seq.size()):
-			var placed = false;
-			for j in range(last_block_end,line.size() + 1):
-				# check if the ith block can be placed at idx i
-				# i.e (1) it doesn't overlap a blank cell
-				# and (2) it doesn't have painted cells immediately before or after the block
-	
-				var end = j + seq[i];
-	
-				# checking (1)
-				var overlaps_blank = false
-				for state in line.slice(j, end):
-					if state == PicrossTypes.CellState.blank:
-						overlaps_blank = true
-						break
-	
-				# checking (2)
-				var next_to_painted_cell = false
-				if (j != 0 && line[j - 1] == PicrossTypes.CellState.painted ||
-					end < line.size() && line[end] == PicrossTypes.CellState.painted):
-					next_to_painted_cell = true
-	
-				if (!(overlaps_blank || next_to_painted_cell)):
-					# a valid position has been found
-					blocks.push_back(PicrossTypes.BlockPosition.new(j,seq[i]))
-	
-					last_block_end = end + 1;
-					placed = true;
-					loop_continue = true
+	for i in range(seq.size()):
+		var placed = false;
+		for j in range(last_block_end,line.size() + 1):
+			# check if the ith block can be placed at idx i
+			# i.e (1) it doesn't overlap a blank cell
+			# and (2) it doesn't have painted cells immediately before or after the block
+
+			var end = j + seq[i];
+
+			# checking (1)
+			var overlaps_blank = false
+			for state in line.slice(j, end - 1):
+				if state == PicrossTypes.CellState.blank:
+					overlaps_blank = true
 					break
-					
-			if loop_continue:
+
+			# checking (2)
+			var next_to_painted_cell = false
+			if (j != 0 && line[j - 1] == PicrossTypes.CellState.painted ||
+				end < line.size() && line[end] == PicrossTypes.CellState.painted):
+				next_to_painted_cell = true
+
+			if (!(overlaps_blank || next_to_painted_cell)):
+				# a valid position has been found
+				blocks.push_back(PicrossTypes.BlockPosition.new(j,seq[i]))
+
+				last_block_end = end + 1;
+				placed = true;
+				loop_continue = true
 				break
-	
-			if (!placed):
-				return null;
-				# throw new Error(`Could not find a valid position for block ${i + 1} of length ${seq[i]}`);
+				
+		if loop_continue:
+			continue
+
+		if (!placed):
+			return null;
+			# throw new Error(`Could not find a valid position for block ${i + 1} of length ${seq[i]}`);
 
 	return blocks;
 
-func rightMostUnassignedBlock(blocks, line) -> PicrossTypes.BlockPosition:
+static func rightMostUnassignedBlock(blocks, line) -> PicrossTypes.BlockPosition:
 	var length = 0
 	var end = 0
 
-	var i = line.size()
+	var i = line.size() - 1
 	while i >= 0:
 		if (line[i] == PicrossTypes.CellState.painted):
 			# check if any block covers this cell
@@ -77,12 +75,12 @@ func rightMostUnassignedBlock(blocks, line) -> PicrossTypes.BlockPosition:
 
 	return null;
 
-func isLineValid(blocks, line) -> bool:
+static func isLineValid(blocks, line) -> bool:
 	for block in blocks:
 		var end = block.start + block.length;
 
 		var overlaps_blank = false
-		for state in line.slice(block.start, end):
+		for state in line.slice(block.start, end - 1):
 			if (state == PicrossTypes.CellState.blank):
 				overlaps_blank = true
 				break
@@ -98,7 +96,7 @@ func isLineValid(blocks, line) -> bool:
 
 	return true;
 
-func leftMost(seq, line):
+static func leftMost(seq, line):
 	var blocks = simpleLeftMost(seq, line);
 	if (blocks == null): return null;
 
@@ -108,7 +106,7 @@ func leftMost(seq, line):
 		# get the rightmost block to the left of the unassigned block
 		var block_idx = null
 
-		var i = blocks.size()
+		var i = blocks.size() - 1
 		while i >= 0:
 			if (blocks[i].start < rightmost_unassigned.start):
 				block_idx = i;
@@ -156,10 +154,10 @@ func leftMost(seq, line):
 						# reposition all blocks to the right of this block
 						if (i != blocks.size() - 1):
 							var seq2 = []
-							for b in blocks.slice(i + 1):
+							for b in blocks.slice(i+1,i+1):
 								seq2.append(b.length);
 							var offset2 = block.start + block.length + 1;
-							var new_pos = leftMost(seq2, line.slice(offset2));
+							var new_pos = leftMost(seq2, line.slice(offset2,offset2));
 
 							if (new_pos == null): return null;
 
@@ -177,7 +175,7 @@ func leftMost(seq, line):
 
 	return blocks;
 
-func rightMost(seq, line):
+static func rightMost(seq, line):
 	var lm = leftMost(Utils.reverse(seq), Utils.reverse(line));
 	if (lm == null): return null;
 
@@ -189,14 +187,15 @@ func rightMost(seq, line):
 
 	return blocks;
 
-func __block_start_sort(a,b):
-	return a.start - b.start < 0
+class BlockSorter:
+	static func sort(a,b):
+		return a.start - b.start < 0
 
-func generateLine(blocks, line):
+static func generateLine(blocks, line):
 	var result = line.duplicate()
 
 	var sorted_blocks = blocks.duplicate()
-	sorted_blocks.sort_custom(self,'__block_start_sort')
+	sorted_blocks.sort_custom(BlockSorter,'sort')
 	for idx in range(sorted_blocks.size()):
 		var block = sorted_blocks[idx]
 		var i = block.start
@@ -206,8 +205,9 @@ func generateLine(blocks, line):
 
 	return result;
 
-func lineSolveSequence(seq, line) -> PicrossTypes.LineInfo:
-
+static func lineSolveSequence(seq, line) -> PicrossTypes.LineInfo:
+	if TRACE:
+		print("lineSolveSequence() : seq %s; line = %s" % [seq,line])
 	# handle simple cases first
 
 	if (seq.size() == 1):
@@ -224,7 +224,8 @@ func lineSolveSequence(seq, line) -> PicrossTypes.LineInfo:
 	var lm_blocks = leftMost(seq, line);
 	var rm_blocks = rightMost(seq, line);
 
-	if (lm_blocks == null || rm_blocks == null): return null;
+	if (lm_blocks == null || rm_blocks == null):
+		return null;
 
 	var lm = generateLine(leftMost(seq, line), line);
 	var rm = generateLine(rightMost(seq, line), line);
@@ -250,7 +251,7 @@ func lineSolveSequence(seq, line) -> PicrossTypes.LineInfo:
 
 	return PicrossTypes.LineInfo.new(blocks,findBlanks(rm_blocks, lm_blocks, line.size()))
 
-func findBlanks(rm_blocks, lm_blocks, line_len: int):
+static func findBlanks(rm_blocks, lm_blocks, line_len: int):
 	if (lm_blocks == null || rm_blocks == null): return null;
 
 	var block_ranges = []
@@ -283,7 +284,7 @@ func findBlanks(rm_blocks, lm_blocks, line_len: int):
 
 	return blanks;
 
-func blocksIntersection(a: PicrossTypes.BlockPosition, b: PicrossTypes.BlockPosition) -> PicrossTypes.BlockPosition:
+static func blocksIntersection(a: PicrossTypes.BlockPosition, b: PicrossTypes.BlockPosition) -> PicrossTypes.BlockPosition:
 	# make sure that b.start >= a.start
 	# [a, b] = [a, b].sort((a, b) => a.start - b.start);
 
@@ -297,7 +298,7 @@ func blocksIntersection(a: PicrossTypes.BlockPosition, b: PicrossTypes.BlockPosi
 
 	return null;
 
-func lineIntersections(a: PicrossTypes.LineInfo, b: PicrossTypes.LineInfo) -> PicrossTypes.LineInfo:
+static func lineIntersections(a: PicrossTypes.LineInfo, b: PicrossTypes.LineInfo) -> PicrossTypes.LineInfo:
 	var blocks = [];# BlockPosition[]
 	var blanks = [];# BlockPosition[]
 
@@ -315,7 +316,9 @@ func lineIntersections(a: PicrossTypes.LineInfo, b: PicrossTypes.LineInfo) -> Pi
 
 	return PicrossTypes.LineInfo.new(blocks, blanks);
 
-func lineSolveCircle(sum: int, state) -> PicrossTypes.LineInfo:
+static func lineSolveCircle(sum: int, state) -> PicrossTypes.LineInfo:
+	if TRACE:
+		print("lineSolveCircle() : sum = %s; state = %s" % [sum,state])
 	var lineInfo = null
 
 	for n in range(1,sum):
@@ -331,7 +334,9 @@ func lineSolveCircle(sum: int, state) -> PicrossTypes.LineInfo:
 
 	return lineInfo;
 
-func lineSolveRectangle(sum: int, state) -> PicrossTypes.LineInfo:
+static func lineSolveRectangle(sum: int, state) -> PicrossTypes.LineInfo:
+	if TRACE:
+		print("lineSolveRectangle() : sum = %s; state = %s" % [sum,state])
 	var lineInfo = null# LineInfo
 
 	for comp in Utils.compositions(sum):
@@ -348,43 +353,48 @@ func lineSolveRectangle(sum: int, state) -> PicrossTypes.LineInfo:
 
 	return lineInfo;
 
-func lineSolve(hint, state) -> PicrossTypes.LineInfo:
-	if (hint == null):
-		return null;
+static func lineSolve(hint, state) -> PicrossTypes.LineInfo:
+	if TRACE:
+		print("lineSolve() : hint = %s; state = %s" % [hint,state])
+		
+	var info = null
+	if (hint != null):
+		match (hint.type):
+			PicrossTypes.HintType.simple:
+				info = lineSolveSequence([hint.num], state);
+	
+			PicrossTypes.HintType.circle:
+				info = lineSolveCircle(hint.num, state);
+	
+			PicrossTypes.HintType.square:
+				info = lineSolveRectangle(hint.num, state);
+	
+	if TRACE:
+		print("lineSolve() : info = %s" % [info])
 
-	match (hint.type):
-		PicrossPuzzle.HintType.simple:
-			return lineSolveSequence([hint.num], state);
+	return info;
 
-		PicrossPuzzle.HintType.circle:
-			return lineSolveCircle(hint.num, state);
-
-		PicrossPuzzle.HintType.square:
-			return lineSolveRectangle(hint.num, state);
-
-	return null;
-
-func isLineSolved(line) -> bool:
+static func isLineSolved(line) -> bool:
 	var every = true
 	for cell in line:
 		every = every && cell != PicrossTypes.CellState.unknown
 	return every
 
 # bruteforce
-func bruteForceSolve(puzzle) -> PicrossShape:
+static func bruteForceSolve(puzzle) -> PicrossShape:
 	puzzle.restart();
-	var shape = puzzle.shape;
+	var shape = puzzle.shape();
 
 	var remaining_lines = [
-		Utils.make_2d_array(shape.dims[1], shape.dims[2], true),
-		Utils.make_2d_array(shape.dims[0], shape.dims[2], true),
-		Utils.make_2d_array(shape.dims[0], shape.dims[1], true)
+		Utils.make_2d_array(shape.dims()[1], shape.dims()[2], true),
+		Utils.make_2d_array(shape.dims()[0], shape.dims()[2], true),
+		Utils.make_2d_array(shape.dims()[0], shape.dims()[1], true)
 	];
 
 	var incomlete_lines_count = [
-		shape.dims[1] * shape.dims[2],
-		shape.dims[0] * shape.dims[2],
-		shape.dims[0] * shape.dims[1]
+		shape.dims()[1] * shape.dims()[2],
+		shape.dims()[0] * shape.dims()[2],
+		shape.dims()[0] * shape.dims()[1]
 	];
 
 	var changed = true;
@@ -393,8 +403,8 @@ func bruteForceSolve(puzzle) -> PicrossShape:
 		changed = false;
 		for d in range(3):
 			if (incomlete_lines_count[d] != 0):
-				for x in range(puzzle.shape.dims[PuzzleGenerator.coord_x[d]]):
-					for y in range(puzzle.shape.dims[PuzzleGenerator.coord_y[d]]):
+				for x in range(puzzle.shape().dims()[PuzzleGenerator.coord_x[d]]):
+					for y in range(puzzle.shape().dims()[PuzzleGenerator.coord_y[d]]):
 						if (remaining_lines[d][x][y]):
 							var state = shape.getLine(x, y, d);
 							if (isLineSolved(state)):

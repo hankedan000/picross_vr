@@ -42,14 +42,23 @@ class BlockPosition:
 	func _init(start: int,length: int):
 		self.start = start
 		self.length = length
+		
+	func duplicate():
+		return get_script().new(self.start,self.length)
+		
+	func _to_string():
+		return str({"start":start,"length":length})
 
-class LineInfo :
+class LineInfo:
 	var blocks;# BlockPosition[]
 	var blanks;# BlockPosition[]
 	
 	func _init(blocks,blanks):
 		self.blocks = blocks
 		self.blanks = blanks
+		
+	func _to_string():
+		return str({"blocks":blocks,"blanks":blanks})
 
 enum PuzzleDifficulty {
 	simple, medium, hard

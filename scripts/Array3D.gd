@@ -6,8 +6,18 @@ var _dims = [0,0,0]
 var _strides = [0,0,0]
 var _offset = 0
 
-func _init(data, dims):
+func initDataDims(data, dims):
 	self._data = data
+	self._dims = dims
+	self._strides = [1, self._dims[0], self._dims[0] * self._dims[1]]
+	self._offset = 0
+	
+func initDimsFill(dims,fill_val):
+	self._data = []
+	for x in range(dims[0]):
+		for y in range(dims[1]):
+			for z in range(dims[2]):
+				self._data.append(fill_val)
 	self._dims = dims
 	self._strides = [1, self._dims[0], self._dims[0] * self._dims[1]]
 	self._offset = 0

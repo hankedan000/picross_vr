@@ -6,7 +6,7 @@ static func make_2d_array(x:int, y:int, val):
 	for xx in range(x):
 		arr.append([])
 		for yy in range(y):
-			arr[x].append(val)
+			arr[xx].append(val)
 	return arr
 
 static func make_3d_array(x:int, y:int, z:int, val):

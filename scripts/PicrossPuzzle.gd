@@ -16,14 +16,14 @@ class LineHint:
 		self.hint_type = hint_type
 	
 var _hints = null# array of LineHint
-var _shape;
+var _shape := PicrossShape.new();
 var _dims# number[];
 var _name := 'Untitled Puzzle';
 
 func _init(dims,hints):
 	self._dims = dims
 	self._hints = hints
-	self._shape = PicrossShape.new(dims, PicrossTypes.CellState.unknown)
+	self._shape.initFromDimState(dims,PicrossTypes.CellState.unknown)
 
 func checkResolved():
 	if (self.isResolved()):
@@ -88,10 +88,10 @@ func getDepth(i: int, j: int):
 	return self._shape.getDepth(i, j);
 
 func hasHint(x: int, y: int, d) -> bool:
-	if (self.hints[d].size() - 1 < x):
+	if (self._hints[d].size() - 1 < x):
 		return false;
 
-	return self.hints[d][x][y] != null;
+	return self._hints[d][x][y] != null;
 
 func hints():
 	if (self._hints != null):
@@ -111,10 +111,10 @@ func hints():
 	return self._hints;
 
 func getLineHint(x: int, y: int, d):
-	if self.hints[d].size() - 1 < x:
+	if self._hints[d].size() - 1 < x:
 		return null;
 
-	return self.hints[d][x][y];
+	return self._hints[d][x][y];
 
 func shape():
 	return self._shape;
