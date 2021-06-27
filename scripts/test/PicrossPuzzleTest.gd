@@ -47,11 +47,10 @@ const HORSE_PUZZLE = {
 }
 
 func _ready():
-#	print(PicrossSolver.simpleLeftMost([3],[1,1,1,1]))
-#	return
 	var puzzle := PicrossPuzzleUtils.fromJSON(HORSE_PUZZLE)
 	var shape := PicrossSolver.bruteForceSolve(puzzle)
 	if shape != null:
 		print("%s is solvable!" % [puzzle.name()])
+		print(shape.cells())
 	else:
 		print("%s is not solvable :(" % [puzzle.name()])

@@ -329,6 +329,9 @@ func restore():
 #	return shape;
 #}
 
+func _to_string():
+	return str({"_cells":_cells,"edits_history":edits_history})
+
 func toJSON():
 	return {
 		"dims" : self.dims(),

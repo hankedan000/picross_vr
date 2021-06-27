@@ -78,6 +78,20 @@ func idxToCoords(idx: int):
 
 	return [i, j, k];
 
+func _to_string():
+	var ss = "dims: %s;\n" % [self.dims()]
+	ss += "data: [\n"
+	for k in range(self.dims()[2]):
+		ss += "\t[\n"
+		for j in range(self.dims()[1]):
+			ss += "\t\t["
+			for i in range(self.dims()[0]):
+				ss += str(self._data[self.idx(i,j,k)]) + " "
+			ss += "]\n"
+		ss += "\t]\n"
+	ss += "];"
+	return ss
+
 func clear():
 	self._data = [];
 
