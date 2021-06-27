@@ -1,40 +1,6 @@
 extends Object
 class_name PicrossShape
 
-enum LineDirection {
-	row = 0, col = 1, depth = 2
-}
-
-enum CellState {
-	blank, unknown, painted
-}
-
-enum HintType {
-	simple, circle, square
-}
-
-class LineHint:
-	var num
-	var type
-	
-class ShapeEdit:
-	var from# CellState
-	var to# CellState
-	var idx# number
-	
-	func _init(from,to,idx):
-		self.from = from
-		self.to = to
-		self.idx = idx
-
-class ShapeEditHistory:
-	var history# ShapeEdit[]
-	var dims# number[]
-	
-class Box:
-	var start# number[]
-	var dims# number[]
-	
 var _cells := Array3D.new([],[0,0,0])# Array3D<CellState>;
 var edits_history# ShapeEdit[];
 
@@ -43,7 +9,7 @@ func _init(cells_data,dims):
 	self._cells = Array3D.new(cells_data,dims)
 
 # returns a Box such that all dimensions of dims are positive
-func boundingBox(from, to) -> Box:
+func boundingBox(from, to) -> PicrossTypes.Box:
 	if (from.size() != to.size()): return null;
 
 	var start = from.copy();
@@ -59,12 +25,12 @@ func boundingBox(from, to) -> Box:
 
 		dims[d] += 1;
 
-	var box := Box.new()
+	var box := PicrossTypes.Box.new()
 	box.start = start
 	box.dims = dims
 	return box;
 
-func computeBoundingBox() -> Box:
+func computeBoundingBox() -> PicrossTypes.Box:
 	var _min = [self._cells.dims[0], self._cells.dims[1], self._cells.dims[2]];
 	var _max = [0, 0, 0];
 	var coords = [];
@@ -76,14 +42,14 @@ func computeBoundingBox() -> Box:
 			while coords[PuzzleGenerator.coord_y[d]] < self._cells.dims[PuzzleGenerator.coord_y[d]]:
 				coords[d] = 0
 				while coords[d] < _min[d]:
-					if self._cells.at(coords[0],coords[1],coords[2]) != CellState.blank:
+					if self._cells.at(coords[0],coords[1],coords[2]) != PicrossTypes.CellState.blank:
 						_min[d] = coords[d];
 						break;
 					coords[d] += 1
 					
 				coords[d] = self._cells.dims[d] - 1
 				while coords[d] >= _max[d]:
-					if self._cells.at(coords[0],coords[1],coords[2]) != CellState.blank:
+					if self._cells.at(coords[0],coords[1],coords[2]) != PicrossTypes.CellState.blank:
 						_max[d] = coords[d];
 						break;
 					coords[d] -= 1
@@ -109,7 +75,7 @@ func setCell(i: int, j: int, k: int, state) -> bool:
 
 	if (changed):
 		var idx = self._cells.idx(i, j, k);
-		self.edits_history.push_back(ShapeEdit.new(prev, state, idx));
+		self.edits_history.push_back(PicrossTypes.ShapeEdit.new(prev, state, idx));
 		self._cells.setAtIdx(idx, state);
 
 	return changed;
@@ -118,13 +84,13 @@ func getCell(i: int, j: int, k: int):
 	if (i < 0 || i >= self.dims[0] ||
 		j < 0 || j >= self.dims[1] ||
 		k < 0 || k >= self.dims[2]):
-		return CellState.blank;
+		return PicrossTypes.CellState.blank;
 
 	return self._cells.at(i,j,k);
 
 func cellExists(i: int, j: int, k: int) -> bool:
 	var c = self.getCell(i, j, k);
-	return c != CellState.blank;
+	return c != PicrossTypes.CellState.blank;
 
 func cells():
 	return self._cells;
@@ -228,11 +194,11 @@ func getDepth(i: int, j: int): # returns array of CellState
 
 func getLine(x: int, y: int, dir):  # returns array of CellState
 	match dir:
-		LineDirection.row:
+		PicrossTypes.LineDirection.row:
 			return self.getRow(x, y);
-		LineDirection.col:
+		PicrossTypes.LineDirection.col:
 			return self.getCol(x, y);
-		LineDirection.depth:
+		PicrossTypes.LineDirection.depth:
 			return self.getDepth(x, y);
 
 	return null;
@@ -331,9 +297,9 @@ func getLineEdges(x: int, y: int, d):
 
 	var i = 0;
 	while i < line.size() - 1:
-		if (line[i] != CellState.blank && (
-			line[i - 1] == CellState.blank ||
-			line[i + 1] == CellState.blank)):
+		if (line[i] != PicrossTypes.CellState.blank && (
+			line[i - 1] == PicrossTypes.CellState.blank ||
+			line[i + 1] == PicrossTypes.CellState.blank)):
 			edges.push_back(i);
 		i += 1
 
@@ -390,4 +356,4 @@ func fillBoundingBox():
 		for j in range(box.start[1],box.start[1] + box.dims[1]):
 			for k in range(box.start[2],box.start[2] + box.dims[2]):
 				if ! self.cellExists(i, j, k):
-					self.setCell(i, j, k, CellState.unknown);
+					self.setCell(i, j, k, PicrossTypes.CellState.unknown);

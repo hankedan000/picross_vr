@@ -20,24 +20,10 @@ var _shape;
 var _dims# number[];
 var _name := 'Untitled Puzzle';
 
-#constructor(shape: PicrossShape);
-#constructor(dims: int[], hints: PuzzleHints);
-#constructor(
-#	dims_or_shape: int[] | PicrossShape,
-#	hints_or_name?: PuzzleHints | string
-#) {
-#	super();
-#	if (arguments.length == 2) {
-#		self._dims = dims_or_shape as number[];
-#		self._hints = hints_or_name as PuzzleHints;
-#		self._shape = new PicrossShape(self._dims, CellState.unknown);
-#	} else {
-#		self._shape = dims_or_shape as PicrossShape;
-#		self._dims = self._shape.dims;
-#		self.hints; #generate hints
-#		self._shape = new PicrossShape(self._dims, CellState.unknown);
-#	}
-#}
+func _init(dims,hints):
+	self._dims = dims
+	self._hints = hints
+	self._shape = PicrossShape.new(dims, PicrossTypes.CellState.unknown)
 
 func checkResolved():
 	if (self.isResolved()):
@@ -136,10 +122,6 @@ func shape():
 func setShape(new_shape):
 	self._shape = new_shape;
 
-func isSolvable() -> bool:
-	# return PicrossSolver.hierarchicalSolve(this) != null;
-	return PicrossSolver.bruteForceSolve(self) != null;
-
 static func cellCountToHint(seq):
 	if (seq == null || seq.size() == 0):
 		return LineHint.new(0,HintType.simple);
@@ -155,9 +137,9 @@ static func cellCountToHint(seq):
 
 func toJSON():
 	return {
-		dims: self.dims,
-		hints: self.hints,
-		name: self._name
+		"dims" : self._dims,
+		"hints" : self._hints,
+		"name" : self._name
 	};
 
 func restart():

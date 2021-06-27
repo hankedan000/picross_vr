@@ -89,6 +89,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://scripts/PicrossSolver.gd"
 }, {
+"base": "Object",
+"class": "PicrossTypes",
+"language": "GDScript",
+"path": "res://scripts/PicrossTypes.gd"
+}, {
 "base": "Node",
 "class": "Player",
 "language": "GDScript",
@@ -121,6 +126,7 @@ _global_script_class_icons={
 "PicrossShape": "",
 "PicrossShapeUtils": "",
 "PicrossSolver": "",
+"PicrossTypes": "",
 "Player": "",
 "PuzzleGenerator": "",
 "Utils": ""
