@@ -9,17 +9,10 @@ const CUBE_WIDTH = 0.02
 
 onready var grab_shape = $grab_shape
 
-# absolute bounds of the 
-var _width = 0
-var _height = 0
-var _depth = 0
+var puzzle : PicrossPuzzle = null;
+var solve_shape : PicrossShape = null;
 
-var _data = {
-	"name" : "",
-	"shape" : [],
-	"hint_groups" : [],
-	"fills" : []
-}
+var _solution_keys = []
 
 # a map of the all the visible cubes keyed by (x,y,z) index
 var _cubes_by_xyz = {}
@@ -28,45 +21,30 @@ func _ready():
 	if no_gravity:
 		gravity_scale = 0
 
-func from_file(filepath : String):
-	vr.log_info("Loading picross from file %s" % filepath)
-	var data = vr.load_json_file(filepath)
+func load_from_json_file(filepath):
+	var puzzle_json = vr.load_json_file(filepath)
+	load_from_json(puzzle_json)
 	
-	reset()
-	for cube in data['shape']:
-		add_cube(cube[0],cube[1],cube[2])
-		
-	_data.fills = data.fills
-	_data.hint_groups = data.hint_groups
-
-func reset():
+func load_from_json(puzzle_json):
+	self.puzzle = PicrossPuzzleUtils.fromJSON(puzzle_json)
+	vr.log_info("Loading picross '%s'" % puzzle.name())
+	
+	self.solve_shape = PicrossSolver.bruteForceSolve(puzzle)
+	
+	_solution_keys = []
+	if self.solve_shape:
+		var dims = self.puzzle.dims()
+		for i in dims[0]:
+			for j in dims[1]:
+				for k in dims[2]:
+					if self.solve_shape.getCell(i,j,k) == PicrossTypes.CellState.painted:
+						var key = _make_key(i,j,k)
+						if ! _solution_keys.has(key):
+							_solution_keys.append(key)
+	
 	_clear_all_cubes()
-	_data = {
-		"name" : "",
-		"shape" : [],
-		"hint_groups" : [],
-		"fills" : []
-	}
-		
-	_width = 0
-	_height = 0
-	_depth = 0
 	_update_grab_shape()
 		
-func add_cube(x,y,z):
-	if x < 0 || y < 0 || z < 0:
-		vr.log_warning('x,y,z must be >= 0. x = %d; y = %d; z = %d;' % [x,y,z])
-		return
-		
-	var key = _make_key(x,y,z)
-	if not _data.shape.has(key):
-		_data.shape.push_back(key)
-	
-	# update shape bounds
-	_width = max(_width,x+1)
-	_height = max(_height,y+1)
-	_depth = max(_depth,z+1)
-	
 # called when player removes a cube from picross
 # returns false if removal was a mistake (ie. removed a cube that's part of the
 # solution); true otherwise
@@ -82,12 +60,16 @@ func remove_cube(cube_key):
 	
 # returns true if the cube referenced by the key is part of the final solution
 func is_a_solved_cube(cube_key):
-	return _data.shape.has(cube_key)
+	return _solution_keys.has(cube_key)
 	
-func load_unsolved_shape(puzzle: PicrossPuzzle):
+func load_unsolved_shape():
 	_clear_all_cubes()
 	
-	print("Loading '%s' unsolved shape" % puzzle.name())
+	if puzzle == null:
+		vr.log_error("No puzzle loaded! Can't load unsolved shape.")
+		return
+	
+	vr.log_info("Loading '%s' unsolved shape" % puzzle.name())
 	var dims = puzzle.dims()
 	
 	# load cubes that bound the final shape
@@ -98,7 +80,7 @@ func load_unsolved_shape(puzzle: PicrossPuzzle):
 				if cube is BaseCube:
 					cube.state= BaseCube.State.Unsolved
 					cube.clear_labels()
-					
+
 	# h x d hints
 	var hd_hints = puzzle.hints()[0]
 	for j in range(dims[1]):
@@ -144,41 +126,44 @@ const FACE_TYPE_LUT = {
 	"-z" : "back"
 }
 
-func load_solved_shape(puzzle: PicrossPuzzle):
+func load_solved_shape():
 	_clear_all_cubes()
 	
-	# load the final shape
-	print("Loading '%s'" % puzzle.name())
-	var shape : PicrossShape = PicrossSolver.bruteForceSolve(puzzle)
-	if shape == null:
-		print("'%s' is not solvable!" % puzzle.name())
+	if puzzle == null:
+		vr.log_error("No puzzle loaded! Can't load solved shape.")
 		return
 	
-	var dims = shape.dims()
+	# load the final shape
+	vr.log_info("Loading '%s'" % puzzle.name())
+	if solve_shape == null:
+		vr.log_error("'%s' is not solvable!" % puzzle.name())
+		return
+	
+	var dims = solve_shape.dims()
 	for i in range(dims[0]):
 		for j in range(dims[1]):
 			for k in range(dims[2]):
-				var c = shape.getCell(i,j,k)
+				var c = solve_shape.getCell(i,j,k)
 				if c == PicrossTypes.CellState.painted:
 					var cube = _add_cube(i,j,k)
 					cube.state = BaseCube.State.Solved
 		
 	# load fill textures
-	var fills = _data.get('fills',[])
-	for fill in fills:
-		var cube = fill.cube
-		
-		# start by fill whole cube with color if it's defined
-		if fill.has('color'):
-			var fill_color = Color(fill['color'])
-			_set_cube_fill(cube[0],cube[1],cube[2],fill_color)
-		
-		# iterate over all faces and fill as defined
-		var faces = fill.get('faces',[])
-		for face_fill in faces:
-			var face = FACE_TYPE_LUT[face_fill['face']]
-			var fill_color = Color(face_fill['color'])
-			_set_cube_face_fill(cube[0],cube[1],cube[2],face,fill_color)
+#	var fills = _data.get('fills',[])
+#	for fill in fills:
+#		var cube = fill.cube
+#
+#		# start by fill whole cube with color if it's defined
+#		if fill.has('color'):
+#			var fill_color = Color(fill['color'])
+#			_set_cube_fill(cube[0],cube[1],cube[2],fill_color)
+#
+#		# iterate over all faces and fill as defined
+#		var faces = fill.get('faces',[])
+#		for face_fill in faces:
+#			var face = FACE_TYPE_LUT[face_fill['face']]
+#			var fill_color = Color(face_fill['color'])
+#			_set_cube_face_fill(cube[0],cube[1],cube[2],face,fill_color)
 
 static func _make_key(x,y,z):
 	return [int(x),int(y),int(z)]
@@ -195,19 +180,21 @@ func _add_cube(x,y,z):
 	new_cube.key = key
 	$cubes.add_child(new_cube)
 	_cubes_by_xyz[key] = new_cube
-	_update_grab_shape()
 	return new_cube
 
 # resize the collision shape based on the current width, height, and depth
 func _update_grab_shape():
-	grab_shape.shape.extents.x = _width * CUBE_WIDTH / 2.0
-	grab_shape.shape.extents.y = _height * CUBE_WIDTH / 2.0
-	grab_shape.shape.extents.z = _depth * CUBE_WIDTH / 2.0
+	var dims = [0,0,0]
+	if puzzle:
+		dims = puzzle.dims()
+	grab_shape.shape.extents.x = dims[0] * CUBE_WIDTH / 2.0
+	grab_shape.shape.extents.y = dims[1] * CUBE_WIDTH / 2.0
+	grab_shape.shape.extents.z = dims[2] * CUBE_WIDTH / 2.0
 	
 	# place colision shape in middle of picross
 	var half_cube_width = CUBE_WIDTH / 2.0
-	grab_shape.transform.origin.x = _width * CUBE_WIDTH / 2.0 - half_cube_width
-	grab_shape.transform.origin.y = _height * CUBE_WIDTH / 2.0 - half_cube_width
+	grab_shape.transform.origin.x = dims[0] * CUBE_WIDTH / 2.0 - half_cube_width
+	grab_shape.transform.origin.y = dims[1] * CUBE_WIDTH / 2.0 - half_cube_width
 	# z is already aligned
 	
 func _set_cube_fill(x,y,z,fill_color):
