@@ -54,8 +54,8 @@ func remove_cube(cube_key):
 		cube.state = BaseCube.State.Mistake
 		return false
 	elif cube:
-		cube.queue_free()
-		_cubes_by_xyz.erase(cube_key)
+		cube.hide()
+		_cull_hidden_nodes()
 	return true
 	
 # returns true if the cube referenced by the key is part of the final solution
@@ -104,18 +104,20 @@ func load_unsolved_shape():
 					var cube : BaseCube = _cubes_by_xyz.get(key,null)
 					if cube != null:
 						cube.set_tb_label(hint.num,hint.type)
-					
+
 	# w x h hints
 	var wh_hints = puzzle.hints()[2]
 	for i in range(dims[0]):
 		for j in range(dims[1]):
-			var hint = wd_hints[i][j]
+			var hint = wh_hints[i][j]
 			if hint != null:
 				for k in range(dims[2]):
 					var key = _make_key(i,j,k)
 					var cube : BaseCube = _cubes_by_xyz.get(key,null)
 					if cube != null:
 						cube.set_fb_label(hint.num,hint.type)
+						
+	_cull_hidden_nodes()
 
 const FACE_TYPE_LUT = {
 	"+x" : "right",
@@ -195,7 +197,7 @@ func _update_grab_shape():
 	var half_cube_width = CUBE_WIDTH / 2.0
 	grab_shape.transform.origin.x = dims[0] * CUBE_WIDTH / 2.0 - half_cube_width
 	grab_shape.transform.origin.y = dims[1] * CUBE_WIDTH / 2.0 - half_cube_width
-	# z is already aligned
+	grab_shape.transform.origin.z = dims[2] * CUBE_WIDTH / 2.0 - half_cube_width
 	
 func _set_cube_fill(x,y,z,fill_color):
 	var key = [x,y,z]
@@ -228,6 +230,53 @@ func _clear_all_cubes():
 	for cube in $cubes.get_children():
 		cube.queue_free()
 	_cubes_by_xyz = {}
+	
+func _cull_hidden_nodes():
+	var dims = puzzle.dims()
+	for cube in $cubes.get_children():
+		if not cube.visible:
+			continue
+		var key = cube.key.duplicate()
+		
+		if cube is BaseCube:
+			if cube.key[0] == 0:
+				cube.show_face('left')
+			elif _cubes_by_xyz[[key[0]-1,key[1],key[2]]].visible:
+				cube.hide_face('left')
+			else:
+				cube.show_face('left')
+			if cube.key[0] == dims[0] - 1:
+				cube.show_face('right')
+			elif _cubes_by_xyz[[key[0]+1,key[1],key[2]]].visible:
+				cube.hide_face('right')
+			else:
+				cube.show_face('right')
+				
+			if cube.key[1] == 0:
+				cube.show_face('bottom')
+			elif _cubes_by_xyz[[key[0],key[1]-1,key[2]]].visible:
+				cube.hide_face('bottom')
+			else:
+				cube.show_face('bottom')
+			if cube.key[1] == dims[1] - 1:
+				cube.show_face('top')
+			elif _cubes_by_xyz[[key[0],key[1]+1,key[2]]].visible:
+				cube.hide_face('top')
+			else:
+				cube.show_face('top')
+				
+			if cube.key[2] == 0:
+				cube.show_face('back')
+			elif _cubes_by_xyz[[key[0],key[1],key[2]-1]].visible:
+				cube.hide_face('back')
+			else:
+				cube.show_face('back')
+			if cube.key[2] == dims[2] - 1:
+				cube.show_face('front')
+			elif _cubes_by_xyz[[key[0],key[1],key[2]+1]].visible:
+				cube.hide_face('front')
+			else:
+				cube.show_face('front')
 	
 func _process(_delta):
 	if no_gravity:

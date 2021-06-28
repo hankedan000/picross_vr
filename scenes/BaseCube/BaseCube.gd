@@ -41,8 +41,18 @@ func _ready():
 			label.translation = new_translatation
 		
 	player.connect("selection_mode_changed",self,"_on_player_selection_mode_changed")
+	self.connect("visibility_changed",self,"_on_visibility_changed")
 		
 	__ready = true
+	
+	set_process(false)
+	set_physics_process(false)
+	for c in $labels.get_children():
+		c.set_process(false)
+		c.set_physics_process(false)
+	for c in $meshes.get_children():
+		c.set_process(false)
+		c.set_physics_process(false)
 	
 func clear_labels():
 	set_fb_label(-1,"normal")
@@ -63,6 +73,36 @@ func _label_type_to_sprite_sheet_y(type):
 		_:
 			vr.log_warning("unsupported label type %s" % type)
 			return NORMAL_NUMBERS_Y
+			
+func show_face(face,include_mesh=true,include_label=true):
+	if include_label:
+		$labels.get_node(face).show()
+	if include_mesh:
+		$meshes.get_node(face).show()
+		
+	# if all faces are not visible, then disable the collision body
+	# this drastically improves FPS because physics computation is reduced
+	var any_visible = false
+	for c in $meshes.get_children():
+		if c.visible:
+			any_visible = true
+			break
+	$RayCastArea/CollisionShape.disabled = not any_visible
+
+func hide_face(face,include_mesh=true,include_label=true):
+	if include_label:
+		$labels.get_node(face).hide()
+	if include_mesh:
+		$meshes.get_node(face).hide()
+	
+	# if all faces are not visible, then disable the collision body
+	# this drastically improves FPS because physics computation is reduced
+	var any_visible = false
+	for c in $meshes.get_children():
+		if c.visible:
+			any_visible = true
+			break
+	$RayCastArea/CollisionShape.disabled = not any_visible
 
 func set_fb_label(number : int, type):
 	var label_visible = false
@@ -73,6 +113,12 @@ func set_fb_label(number : int, type):
 		$labels/front.region_rect.position.x = number * SPRITE_SIZE
 		$labels/back.region_rect.position.y = label_y
 		$labels/back.region_rect.position.x = number * SPRITE_SIZE
+	else:
+		# display full alpha cube
+		$labels/front.region_rect.position.y = 0
+		$labels/front.region_rect.position.x = 0
+		$labels/back.region_rect.position.y = 0
+		$labels/back.region_rect.position.x = 0
 	$labels/front.visible = label_visible
 	$labels/back.visible = label_visible
 		
@@ -85,6 +131,12 @@ func set_tb_label(number : int, type):
 		$labels/top.region_rect.position.x = number * SPRITE_SIZE
 		$labels/bottom.region_rect.position.y = label_y
 		$labels/bottom.region_rect.position.x = number * SPRITE_SIZE
+	else:
+		# display full alpha cube
+		$labels/top.region_rect.position.y = 0
+		$labels/top.region_rect.position.x = 0
+		$labels/bottom.region_rect.position.y = 0
+		$labels/bottom.region_rect.position.x = 0
 	$labels/top.visible = label_visible
 	$labels/bottom.visible = label_visible
 		
@@ -97,6 +149,12 @@ func set_lr_label(number : int, type):
 		$labels/left.region_rect.position.x = number * SPRITE_SIZE
 		$labels/right.region_rect.position.y = label_y
 		$labels/right.region_rect.position.x = number * SPRITE_SIZE
+	else:
+		# display full alpha cube
+		$labels/left.region_rect.position.y = 0
+		$labels/left.region_rect.position.x = 0
+		$labels/right.region_rect.position.y = 0
+		$labels/right.region_rect.position.x = 0
 	$labels/left.visible = label_visible
 	$labels/right.visible = label_visible
 	
@@ -164,3 +222,6 @@ func _on_player_selection_mode_changed(selection_mode):
 	# update color if we're highlighted
 	if highlighted:
 		_set_albedo_color(_highlight_color)
+		
+func _on_visibility_changed():
+	$RayCastArea/CollisionShape.disabled = not visible
