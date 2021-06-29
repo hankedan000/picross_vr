@@ -20,6 +20,16 @@ _global_script_classes=[ {
 "path": "res://scenes/BaseCube/BaseCube.gd"
 }, {
 "base": "Spatial",
+"class": "BaseRoom",
+"language": "GDScript",
+"path": "res://scenes/rooms/BaseRoom.gd"
+}, {
+"base": "BaseRoom",
+"class": "BasicRoom",
+"language": "GDScript",
+"path": "res://scenes/rooms/BasicRoom.gd"
+}, {
+"base": "Spatial",
 "class": "Feature_RigidBodyGrab",
 "language": "GDScript",
 "path": "res://OQ_Toolkit/OQ_ARVRController/scripts/Feature_RigidBodyGrab.gd"
@@ -28,6 +38,11 @@ _global_script_classes=[ {
 "class": "Feature_ToolGrab",
 "language": "GDScript",
 "path": "res://OQ_Toolkit/OQ_ARVRController/scripts/Feature_ToolGrab.gd"
+}, {
+"base": "PanelContainer",
+"class": "MainMenu",
+"language": "GDScript",
+"path": "res://scenes/ui/MainMenu/MainMenu.gd"
 }, {
 "base": "RigidBody",
 "class": "OQClass_GrabbableRigidBody",
@@ -112,8 +127,11 @@ _global_script_classes=[ {
 _global_script_class_icons={
 "Array3D": "",
 "BaseCube": "",
+"BaseRoom": "",
+"BasicRoom": "",
 "Feature_RigidBodyGrab": "",
 "Feature_ToolGrab": "",
+"MainMenu": "",
 "OQClass_GrabbableRigidBody": "",
 "OQClass_GrabbableToolPart": "",
 "OQClass_Tool": "",

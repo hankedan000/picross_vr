@@ -7,6 +7,8 @@ onready var viewport = $Viewport;
 onready var ui_area = $UIArea;
 var ui_collisionshape = null;
 
+# set to true if you want UI normal to be in the negative z direction by default
+export var out_is_negative_z := false;
 export var editor_live_update := false;
 
 export var transparent := false;
@@ -69,6 +71,9 @@ func _ready():
 	ui_control.visible = true; # set visible here as it might was set invisible for editing multiple controls
 	
 	ui_collisionshape = $UIArea/UICollisionShape
+	
+	if out_is_negative_z:
+		$UIArea.rotation.y = PI
 	
 	
 func _editor_update_preview():
