@@ -1,2 +1,2 @@
-extends PanelContainer
+extends ReferenceRect
 class_name MainMenu

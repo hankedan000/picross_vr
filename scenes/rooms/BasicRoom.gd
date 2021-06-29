@@ -6,7 +6,7 @@ onready var ui_raycast := $OQ_ARVROrigin/OQ_RightController/Feature_UIRayCast
 onready var cube_raycast := $OQ_ARVROrigin/OQ_RightController/CubeRaycast
 
 # height of the menu (from top of UI_Canvas) off the ground in meter
-const MENU_HEIGHT = 1.7
+const MENU_HEIGHT = 1.0
 
 # distance in meters away from player where menu will be spawned
 const MENU_DISTANCE = 1.0

@@ -68,7 +68,3 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.39513, -2.55497 )
 out_is_negative_z = true
 
 [node name="MainMenu" parent="MainMenuCanvas" instance=ExtResource( 3 )]
-anchor_right = 0.974
-anchor_bottom = 0.963
-margin_right = -0.0400391
-margin_bottom = -0.0200195

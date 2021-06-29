@@ -39,7 +39,7 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://OQ_Toolkit/OQ_ARVRController/scripts/Feature_ToolGrab.gd"
 }, {
-"base": "PanelContainer",
+"base": "ReferenceRect",
 "class": "MainMenu",
 "language": "GDScript",
 "path": "res://scenes/ui/MainMenu/MainMenu.gd"

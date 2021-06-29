@@ -44,6 +44,10 @@ func update_size():
 	if (ui_area != null):
 		ui_area.scale.x = ui_size.x * vr.UI_PIXELS_TO_METER;
 		ui_area.scale.y = ui_size.y * vr.UI_PIXELS_TO_METER;
+		print("name: %s" % ui_control.name)
+		print("vr.UI_PIXELS_TO_METER: %f" % vr.UI_PIXELS_TO_METER)
+		print("ui_size.x: %f" % ui_size.x)
+		print("width: %f" % ui_area.scale.x)
 	if (viewport != null):
 		viewport.set_size(ui_size);
 
