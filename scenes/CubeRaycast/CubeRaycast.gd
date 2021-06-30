@@ -112,7 +112,14 @@ func _process(_delta):
 							if controller is OQ_ARVRController:
 								controller.simple_rumble(0.6,0.3)
 		elif game.mode == game.GameMode.Create and game.active_picross is EditablePicross:
-			game.active_picross.add_next_cube()
+			match player.selection_mode:
+				Player.SelectionMode.Keep:
+					game.active_picross.add_next_cube()
+				Player.SelectionMode.Remove:
+					var cube_key = curr_cube.key
+					if game.active_picross.remove_cube(cube_key,true):
+						# cube successfully removed
+						curr_cube = null
 			
 	if curr_cube == null:
 		if game.mode == game.GameMode.Create and game.active_picross is EditablePicross:

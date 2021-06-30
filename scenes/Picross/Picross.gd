@@ -46,16 +46,30 @@ func load_from_json(puzzle_json):
 	_update_grab_shape()
 		
 # called when player removes a cube from picross
+#
+# cube_kay -> the [i,j,k] tuple corresponding to the cube to remove
+# completely -> set to true to remove the cube and it's mesh, otherwise the
+# 	cube will just be hidden
+#
 # returns false if removal was a mistake (ie. removed a cube that's part of the
 # solution); true otherwise
-func remove_cube(cube_key):
+func remove_cube(cube_key,completely=false):
 	var cube = _cubes_by_xyz.get(cube_key,null)
 	if cube and is_a_solved_cube(cube_key):
 		cube.state = BaseCube.State.Mistake
 		return false
 	elif cube:
-		cube.hide()
-		_cull_hidden_nodes()
+		if completely:
+			cube.queue_free()
+			_cubes_by_xyz.erase(cube_key)
+			# FIXME need to update the culling logic to support cubes being
+			# fully removed from the scene tree and not just hidden. existing
+			# culling logic assume the picross is composed to a block of cubes
+			# which isn't true when in "create" mode.
+#			_cull_hidden_nodes()
+		else:
+			cube.hide()
+			_cull_hidden_nodes()
 	return true
 	
 # returns true if the cube referenced by the key is part of the final solution
