@@ -169,6 +169,9 @@ func load_solved_shape():
 
 static func _make_key(x,y,z):
 	return [int(x),int(y),int(z)]
+	
+func _get_cube_origin(i,j,k):
+	return Vector3(int(i),int(j),int(k)) * CUBE_WIDTH
 
 func _add_cube(x,y,z):
 	var key = _make_key(x,y,z)
@@ -177,8 +180,7 @@ func _add_cube(x,y,z):
 		return null
 	
 	var new_cube := BaseCubeScene.instance()
-	var origin = Vector3(int(x),int(y),int(z)) * CUBE_WIDTH
-	new_cube.transform = Transform(Basis(), origin)
+	new_cube.transform = Transform(Basis(), _get_cube_origin(x,y,z))
 	new_cube.key = key
 	$cubes.add_child(new_cube)
 	_cubes_by_xyz[key] = new_cube

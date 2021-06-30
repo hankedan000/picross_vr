@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=2]
 
-[ext_resource path="res://scenes/BaseCube/BaseCube.tscn" type="PackedScene" id=1]
+[ext_resource path="res://scenes/Picross/EditablePicross.tscn" type="PackedScene" id=1]
 [ext_resource path="res://scenes/CubeRaycast/CubeRaycast.tscn" type="PackedScene" id=2]
 [ext_resource path="res://scenes/EditorTest/EditorTest.gd" type="Script" id=3]
 
@@ -10,8 +10,9 @@ script = ExtResource( 3 )
 [node name="CubeRaycast" parent="." instance=ExtResource( 2 )]
 transform = Transform( 1, 0, 0, 0, 0.216218, 0.976345, 0, -0.976345, 0.216218, 0, 0, 0.0184733 )
 
-[node name="BaseCube" parent="." instance=ExtResource( 1 )]
-transform = Transform( 1, 0, 0, 0, 0.949047, 0.315136, 0, -0.315136, 0.949047, 0, 0, -0.0275313 )
+[node name="EditablePicross" parent="." instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 0.969851, 0.2437, 0, -0.2437, 0.969851, 0, 0, -0.058001 )
+no_gravity = true
 
 [node name="Camera" type="Camera" parent="."]
 transform = Transform( 0.79312, 0, -0.609066, 0, 1, 0, 0.609066, 0, 0.79312, -0.0507848, 0, 0.0624589 )

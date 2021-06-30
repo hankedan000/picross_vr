@@ -68,12 +68,29 @@ func _process(_delta):
 	mesh_inst.mesh.height = pointer_length
 	
 	# handle creation mode cube placement logic
-	if curr_cube and game.mode == game.GameMode.Create:
+	if game.active_picross is EditablePicross and curr_cube and game.mode == game.GameMode.Create:
 		var coll_face_res = curr_cube.get_colliding_face(collide_normal)
 		var CONFIDENCE_THRESHOLD = 0.6# 1.0 is 100% accurate
 		if coll_face_res.confidence > CONFIDENCE_THRESHOLD:
-			# TODO handle cube placement logic
-			pass
+			var next_i = curr_cube.key[0]
+			var next_j = curr_cube.key[1]
+			var next_k = curr_cube.key[2]
+			if coll_face_res.face == "back":
+				next_k += 1
+			elif coll_face_res.face == "front":
+				next_k -= 1
+			elif coll_face_res.face == "right":
+				next_i += 1
+			elif coll_face_res.face == "left":
+				next_i -= 1
+			elif coll_face_res.face == "top":
+				next_j += 1
+			elif coll_face_res.face == "bottom":
+				next_j -= 1
+				
+			game.active_picross.set_next_cube_location(next_i,next_j,next_k)
+		else:
+			game.active_picross.hide_next_cube()
 	
 	# handle cube selection action (ie. keep, remove, etc)
 	if curr_cube and controller and controller._button_just_pressed(vr.CONTROLLER_BUTTON.INDEX_TRIGGER):
@@ -96,6 +113,8 @@ func _process(_delta):
 							# give player a violent rumble to let them know :P
 							if controller is OQ_ARVRController:
 								controller.simple_rumble(0.6,0.3)
+		elif game.mode == game.GameMode.Create and game.active_picross is EditablePicross:
+			game.active_picross.add_next_cube()
 
 func _set_color(color : Color):
 	var mat : SpatialMaterial = $RaycastPosition/MeshInstance.get_surface_material(0)

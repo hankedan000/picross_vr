@@ -29,6 +29,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://scenes/rooms/BasicRoom.gd"
 }, {
+"base": "Picross",
+"class": "EditablePicross",
+"language": "GDScript",
+"path": "res://scenes/Picross/EditablePicross.gd"
+}, {
 "base": "Spatial",
 "class": "Feature_RigidBodyGrab",
 "language": "GDScript",
@@ -129,6 +134,7 @@ _global_script_class_icons={
 "BaseCube": "",
 "BaseRoom": "",
 "BasicRoom": "",
+"EditablePicross": "",
 "Feature_RigidBodyGrab": "",
 "Feature_ToolGrab": "",
 "MainMenu": "",
