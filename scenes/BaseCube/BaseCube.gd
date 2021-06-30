@@ -104,6 +104,34 @@ func hide_face(face,include_mesh=true,include_label=true):
 			break
 	$RayCastArea/CollisionShape.disabled = not any_visible
 
+const NORMAL_TO_FACE_LUT = {
+	Vector3.UP : "top",
+	Vector3.DOWN : "bottom",
+	Vector3.LEFT : "left",
+	Vector3.RIGHT : "right",
+	Vector3.FORWARD : "front",
+	Vector3.BACK : "back"
+}
+
+# returns a dict {face:"front",confidence:0.2} where the "face" value is the
+# best approximation of the cube face that the collision normal is from, the
+# "confidence" value is a confidence score; confidence of 1.0 means the
+# approximation is 100% accurate, a value of 0.0 means 0% accurate.
+func get_colliding_face(collision_normal: Vector3):
+	var nearest_face = ""
+	var nearest_face_diff = 10000000.0# some large number that's >1 works
+	for face_normal in NORMAL_TO_FACE_LUT:
+		var actual_face_normal = global_transform.basis.xform(face_normal)
+		var diff : Vector3 = collision_normal - face_normal
+		if diff.length() < nearest_face_diff:
+			nearest_face = NORMAL_TO_FACE_LUT[face_normal]
+			nearest_face_diff = diff.length()
+			
+	var confidence = 1.0 - nearest_face_diff
+	if confidence < 0:
+		confidence = 0.0
+	return {"face":nearest_face,"confidence":confidence}
+
 func set_fb_label(number : int, type):
 	var label_visible = false
 	if number >= 0:

@@ -34,8 +34,10 @@ func _process(_delta):
 		return
 		
 	var collide_point = null
+	var collide_normal = null
 	if raycast.is_colliding():
 		collide_point = raycast.get_collision_point()
+		collide_normal = raycast.get_collision_normal()
 		var collider = raycast.get_collider()
 		var collider_parent = collider.get_parent()
 		if collider_parent is BaseCube:
@@ -65,27 +67,35 @@ func _process(_delta):
 	mesh_inst.transform.origin = Vector3(0,pointer_length/2,0)
 	mesh_inst.mesh.height = pointer_length
 	
+	# handle creation mode cube placement logic
+	if curr_cube and game.mode == game.GameMode.Create:
+		var coll_face_res = curr_cube.get_colliding_face(collide_normal)
+		var CONFIDENCE_THRESHOLD = 0.6# 1.0 is 100% accurate
+		if coll_face_res.confidence > CONFIDENCE_THRESHOLD:
+			# TODO handle cube placement logic
+			pass
+	
 	# handle cube selection action (ie. keep, remove, etc)
 	if curr_cube and controller and controller._button_just_pressed(vr.CONTROLLER_BUTTON.INDEX_TRIGGER):
-		match player.selection_mode:
-			Player.SelectionMode.Keep:
-				# toggle cube between keep/unkeep
-				if curr_cube.state == BaseCube.State.MarkedToKeep:
-					curr_cube.state = BaseCube.State.Unsolved
-				elif curr_cube.state == BaseCube.State.Unsolved:
-					curr_cube.state = BaseCube.State.MarkedToKeep
-			Player.SelectionMode.Remove:
-				if curr_cube.state == BaseCube.State.Unsolved:
-					var cube_key = curr_cube.key
-					if game.active_picross.remove_cube(cube_key):
-						# cube successfully removed
-						curr_cube = null
-					else:
-						# OUCH! tried to remove a cube that's part of final solution
-						# give player a violent rumble to let them know :P
-						if controller is OQ_ARVRController:
-							controller.simple_rumble(0.6,0.3)
-					
+		if game.mode == game.GameMode.Play:
+			match player.selection_mode:
+				Player.SelectionMode.Keep:
+					# toggle cube between keep/unkeep
+					if curr_cube.state == BaseCube.State.MarkedToKeep:
+						curr_cube.state = BaseCube.State.Unsolved
+					elif curr_cube.state == BaseCube.State.Unsolved:
+						curr_cube.state = BaseCube.State.MarkedToKeep
+				Player.SelectionMode.Remove:
+					if curr_cube.state == BaseCube.State.Unsolved:
+						var cube_key = curr_cube.key
+						if game.active_picross.remove_cube(cube_key):
+							# cube successfully removed
+							curr_cube = null
+						else:
+							# OUCH! tried to remove a cube that's part of final solution
+							# give player a violent rumble to let them know :P
+							if controller is OQ_ARVRController:
+								controller.simple_rumble(0.6,0.3)
 
 func _set_color(color : Color):
 	var mat : SpatialMaterial = $RaycastPosition/MeshInstance.get_surface_material(0)

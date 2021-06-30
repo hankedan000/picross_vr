@@ -53,12 +53,12 @@ transform = Transform( 1, 0, 0, 0, -1, 8.74228e-08, 0, -8.74228e-08, -1, 0, -0.0
 mesh = SubResource( 1 )
 material/0 = SubResource( 3 )
 
-[node name="back" type="MeshInstance" parent="meshes"]
+[node name="front" type="MeshInstance" parent="meshes"]
 transform = Transform( -1, -8.74228e-08, 3.82137e-15, 0, -4.37114e-08, -1, 8.74228e-08, -1, 4.37114e-08, 0, 0, -0.01 )
 mesh = SubResource( 1 )
 material/0 = SubResource( 4 )
 
-[node name="front" type="MeshInstance" parent="meshes"]
+[node name="back" type="MeshInstance" parent="meshes"]
 transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0.01 )
 mesh = SubResource( 1 )
 material/0 = SubResource( 5 )
@@ -89,14 +89,14 @@ texture = ExtResource( 4 )
 region_enabled = true
 region_rect = Rect2( 0, 0, 64, 64 )
 
-[node name="back" type="Sprite3D" parent="labels"]
+[node name="front" type="Sprite3D" parent="labels"]
 transform = Transform( -0.032, 0, 0, 0, 0.032, 0, 1.04269e-08, 0, 0, 0, 0, -0.0101 )
 visible = false
 texture = ExtResource( 4 )
 region_enabled = true
 region_rect = Rect2( 0, 0, 64, 64 )
 
-[node name="front" type="Sprite3D" parent="labels"]
+[node name="back" type="Sprite3D" parent="labels"]
 transform = Transform( 0.032, 0, 0, 0, 0.032, 0, 0, 0, 0, 0, 0, 0.0101 )
 visible = false
 texture = ExtResource( 4 )
