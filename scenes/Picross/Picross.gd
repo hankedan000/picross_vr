@@ -268,17 +268,17 @@ func _cull_hidden_nodes():
 				cube.show_face('top')
 				
 			if cube.key[2] == 0:
-				cube.show_face('back')
-			elif _cubes_by_xyz[[key[0],key[1],key[2]-1]].visible:
-				cube.hide_face('back')
-			else:
-				cube.show_face('back')
-			if cube.key[2] == dims[2] - 1:
 				cube.show_face('front')
-			elif _cubes_by_xyz[[key[0],key[1],key[2]+1]].visible:
+			elif _cubes_by_xyz[[key[0],key[1],key[2]-1]].visible:
 				cube.hide_face('front')
 			else:
 				cube.show_face('front')
+			if cube.key[2] == dims[2] - 1:
+				cube.show_face('back')
+			elif _cubes_by_xyz[[key[0],key[1],key[2]+1]].visible:
+				cube.hide_face('back')
+			else:
+				cube.show_face('back')
 	
 func _process(_delta):
 	if no_gravity:
