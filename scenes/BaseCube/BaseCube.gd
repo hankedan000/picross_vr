@@ -122,12 +122,12 @@ func get_colliding_face(collision_normal: Vector3):
 	var nearest_face_diff = 10000000.0# some large number that's >1 works
 	for face_normal in NORMAL_TO_FACE_LUT:
 		var actual_face_normal = global_transform.basis.xform(face_normal)
-		var diff : Vector3 = collision_normal - face_normal
+		var diff : Vector3 = collision_normal - actual_face_normal
 		if diff.length() < nearest_face_diff:
 			nearest_face = NORMAL_TO_FACE_LUT[face_normal]
 			nearest_face_diff = diff.length()
 			
-	var confidence = 1.0 - nearest_face_diff
+	var confidence = 1.0 - nearest_face_diff / 2.0
 	if confidence < 0:
 		confidence = 0.0
 	return {"face":nearest_face,"confidence":confidence}

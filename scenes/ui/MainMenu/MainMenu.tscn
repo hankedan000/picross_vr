@@ -72,3 +72,5 @@ margin_top = 249.0
 margin_right = 910.0
 margin_bottom = 291.251
 text = "Settings"
+[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/PlayButton" to="." method="_on_PlayButton_pressed"]
+[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/CreateButton" to="." method="_on_CreateButton_pressed"]

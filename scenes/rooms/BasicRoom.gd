@@ -2,6 +2,7 @@ extends BaseRoom
 class_name BasicRoom
 
 onready var picross : Picross = $Picross
+onready var editable_picross : EditablePicross = $EditablePicross
 onready var ui_raycast := $OQ_ARVROrigin/OQ_RightController/Feature_UIRayCast
 onready var cube_raycast := $OQ_ARVROrigin/OQ_RightController/CubeRaycast
 
@@ -14,6 +15,8 @@ const MENU_DISTANCE = 1.0
 func _ready():
 	game.active_room = self
 	game.active_picross = picross()
+	
+	game.connect("game_mode_changed",self,"_on_game_mode_changed")
 	
 	show_main_menu()
 	
@@ -43,6 +46,9 @@ func main_menu() -> MainMenu:
 func picross() -> Picross:
 	return picross
 	
+func editable_picross() -> EditablePicross:
+	return editable_picross
+	
 func _process(delta):
 	# toggle menu visibility when MENU button is pressed
 	if vr.button_just_pressed(vr.BUTTON.ENTER):
@@ -57,3 +63,13 @@ func _process(delta):
 	else:
 		ui_raycast.visible = false
 		cube_raycast.visible = true
+		
+func _on_game_mode_changed(mode):
+	if mode == game.GameMode.Play:
+		picross.show()
+		editable_picross.hide()
+		game.active_picross = picross
+	elif mode == game.GameMode.Create:
+		picross.hide()
+		editable_picross.show()
+		game.active_picross = editable_picross

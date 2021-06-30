@@ -11,7 +11,7 @@ script = ExtResource( 3 )
 transform = Transform( 1, 0, 0, 0, 0.216218, 0.976345, 0, -0.976345, 0.216218, 0, 0, 0.0184733 )
 
 [node name="EditablePicross" parent="." instance=ExtResource( 1 )]
-transform = Transform( 1, 0, 0, 0, 0.969851, 0.2437, 0, -0.2437, 0.969851, 0, 0, -0.058001 )
+transform = Transform( 0.644239, 0.142116, -0.751504, 0.0701569, 0.967461, 0.243099, 0.761599, -0.209337, 0.613306, -0.00353071, 0, -0.058001 )
 no_gravity = true
 
 [node name="Camera" type="Camera" parent="."]
