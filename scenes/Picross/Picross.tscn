@@ -14,4 +14,3 @@ BaseCubeScene = ExtResource( 2 )
 shape = SubResource( 1 )
 
 [node name="cubes" type="Spatial" parent="."]
-[connection signal="tree_exiting" from="." to="." method="_on_Picross_tree_exiting"]
