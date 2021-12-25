@@ -4,6 +4,7 @@ export var enabled = true
 
 # in meters
 export var max_cast_length = 0.20# 10cm
+export var show_collision_normal = false
 
 onready var raycast = $RaycastPosition/RayCast
 onready var mesh_inst := $RaycastPosition/MeshInstance
@@ -12,6 +13,9 @@ onready var mesh_inst := $RaycastPosition/MeshInstance
 var controller : ARVRController = null
 # the cube we're currently casting upon
 var curr_cube : BaseCube = null
+
+# TODO should queu_free() this guy when I leave the scene
+var _coll_normal_node : Spatial = null
 
 func _ready():
 	raycast.cast_to = Vector3(0,max_cast_length,0)
@@ -59,6 +63,20 @@ func _process(_delta):
 			# release highlight if we were colliding with a cube before
 			curr_cube.highlighted = false
 			curr_cube = null
+			
+	if show_collision_normal and collide_point != null:
+		# add to parent for the first time
+		if _coll_normal_node == null:
+			_coll_normal_node = $CollisionNormal
+			remove_child(_coll_normal_node)
+			get_parent().add_child(_coll_normal_node)
+			
+		_coll_normal_node.visible = show_collision_normal
+		_coll_normal_node.global_transform.origin = collide_point
+		_coll_normal_node.global_transform = _coll_normal_node.global_transform.looking_at(collide_normal+collide_point,Vector3.UP)
+	elif _coll_normal_node != null and collide_point == null:
+		_coll_normal_node.visible = false
+		
 			
 	var pointer_length = max_cast_length
 	if collide_point:
