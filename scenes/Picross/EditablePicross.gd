@@ -9,7 +9,7 @@ var _next_k = 0
 func _ready():
 	# we need at least 1 cube to build off of
 	var cube = _add_cube(0,0,0)
-	cube.state = BaseCube.State.Solved
+	cube.state = BaseCube.State.Unsolved
 	
 	hide_next_cube()
 	
@@ -19,7 +19,7 @@ func hide_next_cube():
 func add_next_cube():
 	if is_next_cube_valid():
 		var cube = _add_cube(_next_i,_next_j,_next_k)
-		cube.state = BaseCube.State.Solved
+		cube.state = BaseCube.State.Unsolved
 		hide_next_cube()
 
 func set_next_cube_location(i,j,k):
