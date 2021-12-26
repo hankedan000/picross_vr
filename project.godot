@@ -201,7 +201,6 @@ texture={
 "svg/scale": 1.0
 }
 image={
-
 }
 
 [input]
@@ -241,7 +240,8 @@ ui_end={
 
 common/physics_fps=72
 common/physics_jitter_fix=0.0
-3d/physics_engine="Bullet"
+3d/physics_engine="GodotPhysics"
+3d/active_soft_world=false
 
 [rendering]
 
@@ -256,8 +256,8 @@ quality/reflections/high_quality_ggx=false
 quality/shading/force_vertex_shading.mobile=false
 quality/shading/force_lambert_over_burley=true
 quality/shading/force_blinn_over_ggx.mobile=false
+quality/lightmapping/use_bicubic_sampling=false
 environment/default_clear_color=Color( 0, 0, 0, 1 )
 quality/filters/msaa=6
 quality/depth/hdr=false
 environment/default_environment="res://default_env.tres"
-quality/lightmapping/use_bicubic_sampling=false
